@@ -89,6 +89,10 @@
             "path": "../packages/cli"
         },
         {
+            "name": "crawl-library",
+            "path": "../packages/crawl-library"
+        },
+        {
             "name": "root",
             "path": "../"
         }
