@@ -73,7 +73,7 @@ steps:
               web-workers/dist/**/*
               functional-tests/dist/**/*
               health-client/dist/**/*
-              crawl-library/dist/**/*
+              crawler-library/dist/**/*
               cli/drop/*
               !**/node_modules/**/*
               !**/.vscode/**/*

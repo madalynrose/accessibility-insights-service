@@ -89,8 +89,8 @@
             "path": "../packages/cli"
         },
         {
-            "name": "crawl-library",
-            "path": "../packages/crawl-library"
+            "name": "crawler-library",
+            "path": "../packages/crawler-library"
         },
         {
             "name": "root",
@@ -122,6 +122,7 @@
             "Newable",
             "Rescan",
             "SARIF",
+            "apify",
             "backlink",
             "cout",
             "coutd",
