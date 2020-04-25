@@ -2,7 +2,12 @@
 // Licensed under the MIT License.
 import * as Apify from 'apify';
 
-export class ApifyFactory {
+export interface CrawlerFactory {
+    createRequestList(existingUrls: string[]): Promise<Apify.RequestList>;
+    createRequestQueue(baseUrl: string): Promise<Apify.RequestQueue>;
+}
+
+export class ApifyFactory implements CrawlerFactory {
     public async createRequestQueue(baseUrl: string): Promise<Apify.RequestQueue> {
         const requestQueue = await Apify.openRequestQueue('queueId-test');
         await requestQueue.addRequest({ url: baseUrl });

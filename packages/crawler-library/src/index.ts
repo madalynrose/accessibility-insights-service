@@ -7,7 +7,9 @@ import * as crawler from './main';
     dotenv.config();
 
     const crawlerEngine = new crawler.CrawlerEngine();
-    await crawlerEngine.start({ baseUrl: 'https://accessibilityinsights.io/' });
+    await crawlerEngine.start({
+        baseUrl: 'https://accessibilityinsights.io/',
+    });
 })().catch(error => {
     console.log('Exception: ', error);
     process.exit(1);

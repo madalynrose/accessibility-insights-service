@@ -9,8 +9,6 @@ const {
     utils: { enqueueLinks },
 } = Apify;
 
-export declare type PageProcessorType = 'ClassicPageProcessor';
-
 export interface PageProcessorOptions {
     baseUrl: string;
     requestQueue: Apify.RequestQueue;
@@ -45,7 +43,7 @@ export class ClassicPageProcessor extends PageProcessorBase {
             requestQueue: this.requestQueue,
             pseudoUrls: this.discoveryPatterns,
         });
-        console.log(`Discovered ${enqueued.length} URLs on page ${request.url}.`);
+        console.log(`Discovered ${enqueued.length} links on page ${request.url}.`);
 
         const pageData: PageData = {
             title: await page.title(),

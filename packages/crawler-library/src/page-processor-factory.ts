@@ -1,26 +1,31 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 import * as url from 'url';
-import { ClassicPageProcessor, PageProcessorBase, PageProcessorOptions, PageProcessorType } from './page-processor';
+import { ClassicPageProcessor, PageProcessorBase, PageProcessorOptions } from './page-processor';
 
-export class PageProcessorFactory {
-    public createPageProcessor(pageProcessorType: PageProcessorType, pageProcessorOptions: PageProcessorOptions): PageProcessorBase {
-        switch (pageProcessorType) {
-            case 'ClassicPageProcessor':
-                const discoveryPatterns =
-                    pageProcessorOptions.discoveryPatterns === undefined
-                        ? this.getDefaultDiscoveryPattern(pageProcessorOptions.baseUrl)
-                        : pageProcessorOptions.discoveryPatterns;
+export interface PageProcessorFactory {
+    createPageProcessor(pageProcessorOptions: PageProcessorOptions): PageProcessorBase;
+}
 
-                return new ClassicPageProcessor(pageProcessorOptions.requestQueue, discoveryPatterns);
-            default:
-                throw new Error(`Unsupported page processor type '${pageProcessorType}'`);
-        }
+export abstract class PageProcessorFactoryBase {
+    public abstract createPageProcessor(pageProcessorOptions: PageProcessorOptions): PageProcessorBase;
+
+    protected getDiscoveryPattern(baseUrl: string, discoveryPatterns: string[]): string[] {
+        return discoveryPatterns === undefined ? this.getDefaultDiscoveryPattern(baseUrl) : discoveryPatterns;
     }
 
-    private getDefaultDiscoveryPattern(baseUrl: string): string[] {
+    protected getDefaultDiscoveryPattern(baseUrl: string): string[] {
         const baseUrlObj = url.parse(baseUrl);
 
         return [`http[s?]://${baseUrlObj.host}${baseUrlObj.path}[.*]`];
+    }
+}
+
+export class ClassicPageProcessorFactory extends PageProcessorFactoryBase {
+    public createPageProcessor(pageProcessorOptions: PageProcessorOptions): PageProcessorBase {
+        return new ClassicPageProcessor(
+            pageProcessorOptions.requestQueue,
+            this.getDiscoveryPattern(pageProcessorOptions.baseUrl, pageProcessorOptions.discoveryPatterns),
+        );
     }
 }

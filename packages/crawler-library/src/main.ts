@@ -2,9 +2,8 @@
 // Licensed under the MIT License.
 import * as Apify from 'apify';
 import * as cheerio from 'cheerio';
-import { ApifyFactory } from './apify-factory';
-import { PageProcessorType } from './page-processor';
-import { PageProcessorFactory } from './page-processor-factory';
+import { ApifyFactory, CrawlerFactory } from './apify-factory';
+import { ClassicPageProcessorFactory, PageProcessorFactory } from './page-processor-factory';
 
 // tslint:disable: no-unsafe-any
 
@@ -12,26 +11,22 @@ export interface CrawlerRunOptions {
     baseUrl: string;
     existingUrls?: string[];
     discoveryPatterns?: string[];
-    pageProcessor?: PageProcessorType;
 }
 
 export class CrawlerEngine {
     public constructor(
-        private readonly apifyFactory: ApifyFactory = new ApifyFactory(),
-        private readonly pageProcessorFactory: PageProcessorFactory = new PageProcessorFactory(),
+        private readonly crawlerFactory: CrawlerFactory = new ApifyFactory(),
+        private readonly pageProcessorFactory: PageProcessorFactory = new ClassicPageProcessorFactory(),
     ) {}
 
     public async start(crawlerRunOptions: CrawlerRunOptions): Promise<void> {
-        const requestList = await this.apifyFactory.createRequestList(crawlerRunOptions.existingUrls);
-        const requestQueue = await this.apifyFactory.createRequestQueue(crawlerRunOptions.baseUrl);
-        const pageProcessor = this.pageProcessorFactory.createPageProcessor(
-            crawlerRunOptions.pageProcessor === undefined ? 'ClassicPageProcessor' : crawlerRunOptions.pageProcessor,
-            {
-                baseUrl: crawlerRunOptions.baseUrl,
-                requestQueue,
-                discoveryPatterns: crawlerRunOptions.discoveryPatterns,
-            },
-        );
+        const requestList = await this.crawlerFactory.createRequestList(crawlerRunOptions.existingUrls);
+        const requestQueue = await this.crawlerFactory.createRequestQueue(crawlerRunOptions.baseUrl);
+        const pageProcessor = this.pageProcessorFactory.createPageProcessor({
+            baseUrl: crawlerRunOptions.baseUrl,
+            requestQueue,
+            discoveryPatterns: crawlerRunOptions.discoveryPatterns,
+        });
 
         Apify.main(async () => {
             const crawler = new Apify.PuppeteerCrawler({
