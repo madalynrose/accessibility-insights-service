@@ -2,10 +2,9 @@
 // Licensed under the MIT License.
 import * as Apify from 'apify';
 import * as cheerio from 'cheerio';
-import { ApifyFactory, CrawlerFactory } from './apify-factory';
+import { CloudApifyFactory, CrawlerFactory } from './crawler-factory';
 import { ClassicPageProcessorFactory, PageProcessorFactory } from './page-processor-factory';
-
-// tslint:disable: no-unsafe-any
+import * as utilities from './utilities';
 
 export interface CrawlerRunOptions {
     baseUrl: string;
@@ -15,7 +14,7 @@ export interface CrawlerRunOptions {
 
 export class CrawlerEngine {
     public constructor(
-        private readonly crawlerFactory: CrawlerFactory = new ApifyFactory(),
+        private readonly crawlerFactory: CrawlerFactory = new CloudApifyFactory(),
         private readonly pageProcessorFactory: PageProcessorFactory = new ClassicPageProcessorFactory(),
     ) {}
 
@@ -24,14 +23,14 @@ export class CrawlerEngine {
         const requestQueue = await this.crawlerFactory.createRequestQueue(crawlerRunOptions.baseUrl);
         const pageProcessor = this.pageProcessorFactory.createPageProcessor({
             baseUrl: crawlerRunOptions.baseUrl,
-            requestQueue,
+            requestQueue: utilities.toApifyInstance(requestQueue),
             discoveryPatterns: crawlerRunOptions.discoveryPatterns,
         });
 
         Apify.main(async () => {
             const crawler = new Apify.PuppeteerCrawler({
                 requestList,
-                requestQueue,
+                requestQueue: utilities.toApifyInstance(requestQueue),
                 handlePageFunction: pageProcessor.pageProcessor,
                 handleFailedRequestFunction: pageProcessor.pageErrorProcessor,
             });

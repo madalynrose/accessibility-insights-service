@@ -2362,6 +2362,21 @@ apify-shared@^0.1.45, apify-shared@^0.1.67:
     underscore "^1.9.1"
     url "^0.11.0"
 
+apify-shared@^0.2.12:
+  version "0.2.12"
+  resolved "https://registry.yarnpkg.com/apify-shared/-/apify-shared-0.2.12.tgz#8c4e38e50c2dcccf15dc4a64bc02864214c460ba"
+  integrity sha512-UxLJnJx8IoxVrZmIPrYM3lJOZ151mD0M4s1TdYujSoQDL9WpFQnUA+sIsz5rKI33BNm9KK5m5xuo2AzJUyE93A==
+  dependencies:
+    bluebird "^3.7.2"
+    chalk "^3.0.0"
+    clone "^2.1.1"
+    countries-list "^2.5.1"
+    is-buffer "^2.0.3"
+    request "^2.88.0"
+    slugg "^1.2.1"
+    underscore "^1.9.1"
+    url "^0.11.0"
+
 apify-shared@^0.2.7:
   version "0.2.10"
   resolved "https://registry.yarnpkg.com/apify-shared/-/apify-shared-0.2.10.tgz#be2af52d1f6eb2403d262f1c9c4d22c19fde2f1d"
