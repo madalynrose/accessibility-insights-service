@@ -47,11 +47,13 @@ export class ClassicPageProcessor extends PageProcessorBase {
             requestQueue: this.requestQueue,
             pseudoUrls: this.discoveryPatterns,
         });
-        console.log(`Discovered ${enqueued.length} links on a ${request.url} page.`);
+        console.log(`Discovered ${enqueued.length} links on ${request.url} page.`);
 
         const scanner = new PageScanner(page);
         const scanResult = await scanner.scan();
-        console.log(`Found ${scanResult.axeResults.violations.length} accessibility issues on a ${request.url} page.`);
+        if (scanResult.axeResults.violations.length > 0) {
+            console.log(`Found ${scanResult.axeResults.violations.length} accessibility issues on ${request.url} page.`);
+        }
 
         const pageData: PageData = {
             title: await page.title(),
