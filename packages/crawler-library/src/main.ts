@@ -32,6 +32,7 @@ export class CrawlerEngine {
                 requestList,
                 requestQueue: utilities.toApifyInstance(requestQueue),
                 handlePageFunction: pageProcessor.pageProcessor,
+                gotoFunction: pageProcessor.gotoFunction,
                 handleFailedRequestFunction: pageProcessor.pageErrorProcessor,
             });
 

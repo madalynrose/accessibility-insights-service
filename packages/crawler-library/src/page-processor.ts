@@ -7,7 +7,10 @@ import { PageScanner } from './page-scanner';
 // tslint:disable: no-unsafe-any
 
 const {
-    utils: { enqueueLinks },
+    utils: {
+        enqueueLinks,
+        puppeteer: { gotoExtended },
+    },
 } = Apify;
 
 export interface PageProcessorOptions {
@@ -17,14 +20,34 @@ export interface PageProcessorOptions {
 }
 
 export abstract class PageProcessorBase {
-    // This function is called to extract data from a single web page
-    // 'page' is an instance of Puppeteer.Page with page.goto(request.url) already called
-    // 'request' is an instance of Request class with information about the page to load
+    /**
+     * This function is called to extract data from a single web page
+     * 'page' is an instance of Puppeteer.Page with page.goto(request.url) already called
+     * 'request' is an instance of Request class with information about the page to load
+     */
     public abstract pageProcessor: Apify.PuppeteerHandlePage;
+
+    /**
+     * Timeout in which page navigation needs to finish, in seconds.
+     */
+    public gotoTimeoutSecs = 30;
 
     public constructor(protected readonly requestQueue: Apify.RequestQueue, protected readonly discoveryPatterns?: string[]) {}
 
-    // This function is called when the crawling of a request failed after several reties
+    /**
+     * Overrides the function that opens the page in Puppeteer.
+     * Return the result of Puppeteer's [page.goto()](https://pptr.dev/#?product=Puppeteer&show=api-pagegotourl-options) function.
+     */
+    public gotoFunction: Apify.PuppeteerGoto = async (inputs: Apify.PuppeteerGotoInputs) => {
+        return gotoExtended(inputs.page, inputs.request, {
+            waitUntil: 'networkidle0',
+            timeout: this.gotoTimeoutSecs * 1000,
+        });
+    };
+
+    /**
+     * This function is called when the crawling of a request failed after several reties
+     */
     public pageErrorProcessor: Apify.HandleFailedRequest = async ({ request, error }) => {
         const pageData: PageData = {
             title: '',
@@ -39,9 +62,12 @@ export abstract class PageProcessorBase {
 
 export class ClassicPageProcessor extends PageProcessorBase {
     private keyValueStore: Apify.KeyValueStore;
+    private datasetStore: Apify.Dataset;
 
     public pageProcessor: Apify.PuppeteerHandlePage = async ({ page, request }) => {
+        await this.openDatasetStore();
         await this.openKeyValueStore();
+
         const enqueued = await enqueueLinks({
             page,
             requestQueue: this.requestQueue,
@@ -61,9 +87,15 @@ export class ClassicPageProcessor extends PageProcessorBase {
             succeeded: true,
             axeResults: scanResult.axeResults,
         };
-        await Apify.pushData(pageData);
+        await this.datasetStore.pushData(pageData);
         await this.keyValueStore.setValue(`id-${Date.now().toString()}`, scanResult.report.asHTML(), { contentType: 'text/html' });
     };
+
+    private async openDatasetStore(): Promise<void> {
+        if (this.datasetStore === undefined) {
+            this.datasetStore = await Apify.openDataset('scan-results');
+        }
+    }
 
     private async openKeyValueStore(): Promise<void> {
         if (this.keyValueStore === undefined) {
