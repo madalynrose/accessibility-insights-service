@@ -3,17 +3,12 @@
 
 // tslint:disable: no-any no-unsafe-any no-require-imports no-var-requires no-function-expression
 function overrideCheckPrototypeUtilsFunc(exports: any): any {
-    const context = function(): void {
-        return;
-    };
-    const checkParamPrototypeOrThrowOriginalFunc = function(...args: any): any {
-        return context.apply(exports.checkParamPrototypeOrThrow, args);
-    };
+    const originalFunc = exports.checkParamPrototypeOrThrow;
     exports.checkParamPrototypeOrThrow = function(...args: any): any {
         if (args[3] === 'Apify.RequestQueue') {
             return true;
         } else {
-            return checkParamPrototypeOrThrowOriginalFunc(...args);
+            return originalFunc(...args);
         }
     };
 
