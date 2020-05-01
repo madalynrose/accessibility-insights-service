@@ -11,7 +11,12 @@ export interface ScanResult {
 }
 
 export class PageScanner {
-    public constructor(private readonly page: Page, private readonly reporter = reporterFactory()) {}
+    // reporterFactory should be instantiated only once per app life cycle.
+    // Creating reporterFactory instance multiple times will result Office Fabric
+    // warning message: `Applications should only call registerIcons for any given icon once.`
+    public static reporter = reporterFactory();
+
+    public constructor(private readonly page: Page) {}
 
     public async scan(): Promise<ScanResult> {
         const axePuppeteer: AxePuppeteer = new AxePuppeteer(this.page);
@@ -26,10 +31,10 @@ export class PageScanner {
     }
 
     private createReport(axeResults: AxeResults, url: string, title: string): Report {
-        return this.reporter.fromAxeResult({
+        return PageScanner.reporter.fromAxeResult({
             results: axeResults,
             serviceName: 'Accessibility Insights CLI',
-            description: `Automated report for accessibility scan of url ${url}`,
+            description: `Automated report for accessibility scan of URL ${url}`,
             scanContext: {
                 pageTitle: title,
             },
