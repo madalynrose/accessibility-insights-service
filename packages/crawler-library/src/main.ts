@@ -3,7 +3,7 @@
 import * as Apify from 'apify';
 import * as cheerio from 'cheerio';
 import { CloudApifyFactory, CrawlerFactory } from './crawler-factory';
-import { ClassicPageProcessorFactory, PageProcessorFactory } from './page-processor-factory';
+import { ClassicPageProcessorFactory, PageProcessorFactory } from './page-processors/page-processor-factory';
 import * as utilities from './utilities';
 
 export interface CrawlerRunOptions {

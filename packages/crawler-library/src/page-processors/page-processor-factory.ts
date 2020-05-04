@@ -1,7 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 import * as url from 'url';
-import { ClassicPageProcessor, PageProcessorBase, PageProcessorOptions } from './page-processor';
+import { ClassicPageProcessor } from './classic-page-processor';
+import { PageProcessorBase, PageProcessorOptions } from './page-processor';
 
 export interface PageProcessorFactory {
     createPageProcessor(pageProcessorOptions: PageProcessorOptions): PageProcessorBase;
