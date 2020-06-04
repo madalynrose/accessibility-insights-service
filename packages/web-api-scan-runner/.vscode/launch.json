@@ -14,7 +14,8 @@
             "preLaunchTask": "run",
             "console": "integratedTerminal",
             "internalConsoleOptions": "neverOpen",
-            "smartStep": true
+            "smartStep": true,
+            "args": ["--id", "1eaa5c44-2403-6a61-9281-38be1383bdf2", "--url", "https://developer.microsoft.com/en-us/graph/graph-explorer"]
         }
     ]
 }

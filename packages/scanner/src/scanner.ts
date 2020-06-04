@@ -21,7 +21,7 @@ export class Scanner {
     public async scan(url: string): Promise<AxeScanResults> {
         const scanConfig = await this.serviceConfig.getConfigValue('scanConfig');
 
-        return this.promiseUtils.waitFor(this.scanWithoutTimeout(url), scanConfig.scanTimeoutInMin * 60000, () =>
+        return this.promiseUtils.waitFor(this.scanWithoutTimeout(url), 600000, () =>
             // tslint:disable-next-line: no-object-literal-type-assertion
             Promise.resolve({
                 error: {
