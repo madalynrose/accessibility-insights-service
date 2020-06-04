@@ -40,6 +40,13 @@ export class CrawlerEngine {
                 handlePageFunction: pageProcessor.pageProcessor,
                 gotoFunction: pageProcessor.gotoFunction,
                 handleFailedRequestFunction: pageProcessor.pageErrorProcessor,
+                puppeteerPoolOptions: {
+                    puppeteerOperationTimeoutSecs: 3600,
+                    instanceKillerIntervalSecs: 3600,
+                    killInstanceAfterSecs: 3600,
+                },
+                handlePageTimeoutSecs: 3600,
+                gotoTimeoutSecs: 3600,
             });
 
             await crawler.run();

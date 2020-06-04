@@ -15,7 +15,7 @@
             "console": "integratedTerminal",
             "internalConsoleOptions": "neverOpen",
             "smartStep": true,
-            "args": ["--url", "https://beta.support.xbox.com/", "--simulate", "--selectors", "\"button\""]
+            "args": ["--url", "https://developer.microsoft.com/en-us/graph/graph-explorer"]
         }
     ]
 }
