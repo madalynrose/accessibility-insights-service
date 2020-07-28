@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 import { BatchServiceClient } from '@azure/batch';
-import { CosmosClient, CosmosClientOptions } from '@azure/cosmos';
+import { ConnectionPolicy, CosmosClient, CosmosClientOptions } from '@azure/cosmos';
 import { KeyVaultClient } from '@azure/keyvault';
 import * as msRestNodeAuth from '@azure/ms-rest-nodeauth';
 import { BlobServiceClient, StorageSharedKeyCredential as SharedKeyCredentialBlob } from '@azure/storage-blob';
@@ -145,14 +145,23 @@ function setupSingletonCosmosClientProvider(
     cosmosClientFactory: (options: CosmosClientOptions) => CosmosClient,
 ): void {
     IoC.setupSingletonProvider<CosmosClient>(iocTypeNames.CosmosClientProvider, container, async (context) => {
+        const connectionPolicy: ConnectionPolicy = {
+            requestTimeout: 10000,
+            retryOptions: {
+                maxRetryAttemptCount: 9,
+                fixedRetryIntervalInMilliseconds: 1000,
+                maxWaitTimeInSeconds: 10,
+            },
+        };
+
         if (process.env.COSMOS_DB_URL !== undefined && process.env.COSMOS_DB_KEY !== undefined) {
-            return cosmosClientFactory({ endpoint: process.env.COSMOS_DB_URL, key: process.env.COSMOS_DB_KEY });
+            return cosmosClientFactory({ endpoint: process.env.COSMOS_DB_URL, key: process.env.COSMOS_DB_KEY, connectionPolicy });
         } else {
             const secretProvider = context.container.get(SecretProvider);
             const cosmosDbUrl = await secretProvider.getSecret(secretNames.cosmosDbUrl);
             const cosmosDbKey = await secretProvider.getSecret(secretNames.cosmosDbKey);
 
-            return cosmosClientFactory({ endpoint: cosmosDbUrl, key: cosmosDbKey });
+            return cosmosClientFactory({ endpoint: cosmosDbUrl, key: cosmosDbKey, connectionPolicy });
         }
     });
 }

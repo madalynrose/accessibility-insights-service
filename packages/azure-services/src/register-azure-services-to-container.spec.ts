@@ -260,7 +260,18 @@ describe(registerAzureServicesToContainer, () => {
         let secretProviderMock: IMock<SecretProvider>;
         const cosmosDbUrl = 'db url';
         const cosmosDbKey = 'db key';
-        const expectedOptions = { endpoint: cosmosDbUrl, key: cosmosDbKey };
+        const expectedOptions = {
+            endpoint: cosmosDbUrl,
+            key: cosmosDbKey,
+            connectionPolicy: {
+                requestTimeout: 10000,
+                retryOptions: {
+                    maxRetryAttemptCount: 9,
+                    fixedRetryIntervalInMilliseconds: 1000,
+                    maxWaitTimeInSeconds: 10,
+                },
+            },
+        };
 
         beforeEach(() => {
             secretProviderMock = Mock.ofType(SecretProvider);

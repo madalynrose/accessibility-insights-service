@@ -93,35 +93,35 @@ export class ScanBatchRequestFeedController extends WebController {
     }
 
     private async writeRequestsToPermanentContainer(requests: ScanRunBatchRequest[], batchRequestId: string): Promise<void> {
-        const requestDocuments = requests.map<OnDemandPageScanResult>((request) => {
+        const requestDocuments = requests.map<OnDemandPageScanResult>((request) => ({
+            id: request.scanId,
+            url: request.url,
+            priority: request.priority,
+            itemType: ItemType.onDemandPageScanRunResult,
+            partitionKey: this.partitionKeyFactory.createPartitionKeyForDocument(ItemType.onDemandPageScanRunResult, request.scanId),
+            run: {
+                state: 'accepted',
+                timestamp: new Date().toJSON(),
+            },
+            batchRequestId: batchRequestId,
+            ...(isEmpty(request.scanNotifyUrl)
+                ? {}
+                : {
+                      notification: {
+                          state: 'pending',
+                          scanNotifyUrl: request.scanNotifyUrl,
+                      },
+                  }),
+        }));
+
+        await this.onDemandPageScanRunResultProvider.writeScanRuns(requestDocuments);
+        requests.map((request) => {
             this.logger.logInfo('Created new scan result document in scan result storage container.', {
                 batchRequestId,
                 scanId: request.scanId,
             });
-
-            return {
-                id: request.scanId,
-                url: request.url,
-                priority: request.priority,
-                itemType: ItemType.onDemandPageScanRunResult,
-                partitionKey: this.partitionKeyFactory.createPartitionKeyForDocument(ItemType.onDemandPageScanRunResult, request.scanId),
-                run: {
-                    state: 'accepted',
-                    timestamp: new Date().toJSON(),
-                },
-                batchRequestId: batchRequestId,
-                ...(isEmpty(request.scanNotifyUrl)
-                    ? {}
-                    : {
-                          notification: {
-                              state: 'pending',
-                              scanNotifyUrl: request.scanNotifyUrl,
-                          },
-                      }),
-            };
         });
 
-        await this.onDemandPageScanRunResultProvider.writeScanRuns(requestDocuments);
         this.logger.logInfo(
             `Added scan requests to permanent scan result storage container.`,
             this.getLogPropertiesForRequests(requests, batchRequestId),
@@ -131,10 +131,6 @@ export class ScanBatchRequestFeedController extends WebController {
     private async writeRequestsToQueueContainer(requests: ScanRunBatchRequest[], batchRequestId: string): Promise<void> {
         const requestDocuments = requests.map<OnDemandPageScanRequest>((request) => {
             const scanNotifyUrl = isEmpty(request.scanNotifyUrl) ? {} : { scanNotifyUrl: request.scanNotifyUrl };
-            this.logger.logInfo('Created new scan request document in queue storage container.', {
-                batchRequestId,
-                scanId: request.scanId,
-            });
 
             return {
                 id: request.scanId,
@@ -147,6 +143,13 @@ export class ScanBatchRequestFeedController extends WebController {
         });
 
         await this.pageScanRequestProvider.insertRequests(requestDocuments);
+        requests.map((request) => {
+            this.logger.logInfo('Created new scan request document in queue storage container.', {
+                batchRequestId,
+                scanId: request.scanId,
+            });
+        });
+
         this.logger.logInfo(
             `Added scan requests to scan queue storage container.`,
             this.getLogPropertiesForRequests(requests, batchRequestId),
