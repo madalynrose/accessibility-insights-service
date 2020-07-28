@@ -1,0 +1,25 @@
+{ 
+    "lib": ["es6", "dom"],
+    "types": ["reflect-metadata"],
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "compilerOptions": {
+        "target": "es2015",
+        "module": "commonjs",
+        "moduleResolution": "node",
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "noImplicitAny": true,
+        "noUnusedLocals": true,
+        "noImplicitReturns": true,
+        "resolveJsonModule": true,
+        "sourceMap": true,
+        "declaration": true,
+        "outDir": "dist",
+        "types": ["reflect-metadata", "@types/node"]
+    },
+    "awesomeTypescriptLoaderOptions": {
+        "usePrecompiledFiles": true,
+        "useWebpackText": true
+    }
+}

@@ -1,0 +1,23 @@
+{
+  "name": "axe-error-repro",
+  "version": "1.0.0",
+  "description": "axe test project",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc && echo"
+  },
+  "author": "Microsoft",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^13.13.5",
+    "@types/puppeteer": "^3.0.0"
+  },
+  "dependencies": {
+    "axe-core": "3.5.1",
+    "axe-puppeteer": "^1.1.0",
+    "puppeteer": "^4.0.0",
+    "axe-sarif-converter": "^2.1.0",
+    "accessibility-insights-report": "^1.0.3",
+    "reflect-metadata": "^0.1.13"
+  }
+}
