@@ -65,7 +65,7 @@ describe('PageScanRequestProvider.Db', () => {
                 partitionKey: PartitionKey.pageScanRequestDocuments,
             };
 
-            await testSubject.insertRequests([request1, request2, request3]);
+            await testSubject.writeRequests([request1, request2, request3]);
 
             const itemsInDb = await testSubject.getRequests();
 
@@ -99,9 +99,9 @@ describe('PageScanRequestProvider.Db', () => {
                 partitionKey: PartitionKey.pageScanRequestDocuments,
             };
 
-            await testSubject.insertRequests([request1, request2, requestNotToBeDeleted]);
+            await testSubject.writeRequests([request1, request2, requestNotToBeDeleted]);
 
-            await testSubject.deleteRequests([request1.id, request2.id]);
+            await testSubject.deleteRequests([request1, request2]);
 
             const requests = await testSubject.getRequests();
 

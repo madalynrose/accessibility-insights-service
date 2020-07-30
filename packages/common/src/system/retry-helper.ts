@@ -16,18 +16,18 @@ export class RetryHelper<T> {
     public async executeWithRetries(
         action: () => Promise<T>,
         onRetry: ErrorHandler,
-        maxRetryCount: number,
+        maxExecuteCount: number,
         retryIntervalMilliseconds: number = 0,
     ): Promise<T> {
         let lastError: Error;
-        for (let i = 0; i < maxRetryCount; i += 1) {
+        for (let i = 0; i < maxExecuteCount; i += 1) {
             try {
                 return await action();
             } catch (error) {
                 lastError =
                     error instanceof Error ? error : { name: 'RetryError', message: JSON.stringify(error), stack: new Error().stack };
 
-                if (i < maxRetryCount - 1) {
+                if (i < maxExecuteCount - 1) {
                     await onRetry(lastError);
                     if (retryIntervalMilliseconds > 0) {
                         await this.sleepFunction(retryIntervalMilliseconds * (i + 1));

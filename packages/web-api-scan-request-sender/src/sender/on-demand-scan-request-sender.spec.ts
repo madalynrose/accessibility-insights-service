@@ -83,7 +83,7 @@ describe('Scan request sender', () => {
                 .verifiable(Times.once());
 
             pageScanRequestProvider
-                .setup(async (doc) => doc.deleteRequests([request.id]))
+                .setup(async (doc) => doc.deleteRequests([request]))
                 .returns(async () => Promise.resolve())
                 .verifiable(Times.once());
 
@@ -122,7 +122,7 @@ describe('Scan request sender', () => {
                 .verifiable(Times.once());
 
             pageScanRequestProvider
-                .setup(async (doc) => doc.deleteRequests([request.id]))
+                .setup(async (doc) => doc.deleteRequests([request]))
                 .returns(async () => Promise.resolve())
                 .verifiable(Times.once());
 
@@ -160,7 +160,7 @@ describe('Scan request sender', () => {
                 .verifiable(Times.never());
 
             pageScanRequestProvider
-                .setup(async (doc) => doc.deleteRequests([request.id]))
+                .setup(async (doc) => doc.deleteRequests([request]))
                 .returns(async () => Promise.resolve())
                 .verifiable(Times.once());
 

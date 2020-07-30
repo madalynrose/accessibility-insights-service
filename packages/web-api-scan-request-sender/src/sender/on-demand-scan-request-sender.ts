@@ -50,7 +50,7 @@ export class OnDemandScanRequestSender {
                     });
                 }
 
-                await this.pageScanRequestProvider.deleteRequests([page.id]);
+                await this.pageScanRequestProvider.deleteRequests([page]);
             }),
         );
     }

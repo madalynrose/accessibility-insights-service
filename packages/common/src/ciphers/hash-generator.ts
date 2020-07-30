@@ -36,8 +36,12 @@ export class HashGenerator {
     }
 
     public getDbHashBucket(prefix: string, ...values: string[]): string {
-        // change of buckets count may affect bucket generation of the same values
-        return this.getHashBucket(prefix, 1000, ...values);
+        // changing buckets range may affect partition key generation for the same values
+        return this.getDbHashBucketWithRange(prefix, 1000, ...values);
+    }
+
+    public getDbHashBucketWithRange(prefix: string, buckets: number, ...values: string[]): string {
+        return this.getHashBucket(prefix, buckets, ...values);
     }
 
     public getHashBucket(prefix: string, buckets: number, ...values: string[]): string {

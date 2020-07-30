@@ -11,9 +11,20 @@ export class PartitionKeyFactory {
         @inject(GuidGenerator) private readonly guidGenerator: GuidGenerator,
     ) {}
 
+    public get transientContainerBucketRange(): number {
+        // changing buckets range may affect partition key generation for the same values
+        return 10;
+    }
+
     public createPartitionKeyForDocument(documentType: ItemType, documentId: string): string {
         const node = this.guidGenerator.getGuidNode(documentId);
 
         return this.hashGenerator.getDbHashBucket(documentType, node);
+    }
+
+    public createPartitionKeyForTransientDocument(documentType: ItemType, documentId: string): string {
+        const node = this.guidGenerator.getGuidNode(documentId);
+
+        return this.hashGenerator.getDbHashBucketWithRange(documentType, this.transientContainerBucketRange, node);
     }
 }

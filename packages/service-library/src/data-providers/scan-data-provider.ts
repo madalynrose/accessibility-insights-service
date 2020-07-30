@@ -2,27 +2,33 @@
 // Licensed under the MIT License.
 import { CosmosContainerClient, cosmosContainerClientTypes } from 'azure-services';
 import { inject, injectable } from 'inversify';
-import { ItemType, OnDemandPageScanBatchRequest, PartitionKey, ScanRunBatchRequest } from 'storage-documents';
+import { ItemType, OnDemandPageScanBatchRequest, ScanRunBatchRequest } from 'storage-documents';
+import { PartitionKeyFactory } from '../factories/partition-key-factory';
 
 @injectable()
 export class ScanDataProvider {
     public constructor(
         @inject(cosmosContainerClientTypes.OnDemandScanBatchRequestsCosmosContainerClient)
         private readonly cosmosContainerClient: CosmosContainerClient,
+        @inject(PartitionKeyFactory) private readonly partitionKeyFactory: PartitionKeyFactory,
     ) {}
 
-    public async writeScanRunBatchRequest(batchId: string, scanRunBatchResponse: ScanRunBatchRequest[]): Promise<void> {
+    public async writeScanRunBatchRequest(batchId: string, scanRequests: ScanRunBatchRequest[]): Promise<void> {
         const scanRunBatchRequest: OnDemandPageScanBatchRequest = {
             id: batchId,
             itemType: ItemType.scanRunBatchRequest,
-            partitionKey: PartitionKey.scanRunBatchRequests,
-            scanRunBatchRequest: scanRunBatchResponse,
+            partitionKey: this.getPartitionKey(batchId),
+            scanRunBatchRequest: scanRequests,
         };
 
         await this.cosmosContainerClient.writeDocument(scanRunBatchRequest);
     }
 
-    public async deleteBatchRequest(request: OnDemandPageScanBatchRequest): Promise<void> {
-        await this.cosmosContainerClient.deleteDocument(request.id, request.partitionKey);
+    public async deleteBatchRequest(batchRequest: OnDemandPageScanBatchRequest): Promise<void> {
+        await this.cosmosContainerClient.deleteDocument(batchRequest.id, batchRequest.partitionKey);
+    }
+
+    private getPartitionKey(batchId: string): string {
+        return this.partitionKeyFactory.createPartitionKeyForTransientDocument(ItemType.scanRunBatchRequest, batchId);
     }
 }

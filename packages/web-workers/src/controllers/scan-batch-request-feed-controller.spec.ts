@@ -3,18 +3,19 @@
 import 'reflect-metadata';
 
 import { Context } from '@azure/functions';
-import { ServiceConfiguration } from 'common';
+import { RetryHelper, ServiceConfiguration } from 'common';
 import { isNil } from 'lodash';
 import * as MockDate from 'mockdate';
 import { OnDemandPageScanRunResultProvider, PageScanRequestProvider, PartitionKeyFactory, ScanDataProvider } from 'service-library';
-import { ItemType, OnDemandPageScanBatchRequest, OnDemandPageScanRequest, OnDemandPageScanResult, PartitionKey } from 'storage-documents';
+import { ItemType, OnDemandPageScanBatchRequest, OnDemandPageScanRequest, OnDemandPageScanResult } from 'storage-documents';
 import { IMock, It, Mock, Times } from 'typemoq';
-
 import { MockableLogger } from '../test-utilities/mockable-logger';
 import { ScanBatchRequestFeedController } from './scan-batch-request-feed-controller';
 
-// tslint:disable: no-any no-unsafe-any
+// tslint:disable: no-any no-unsafe-any no-null-keyword
 
+const maxExecuteCount = 3;
+const retryIntervalMilliseconds = 2000;
 let scanBatchRequestFeedController: ScanBatchRequestFeedController;
 let onDemandPageScanRunResultProviderMock: IMock<OnDemandPageScanRunResultProvider>;
 let pageScanRequestProviderMock: IMock<PageScanRequestProvider>;
@@ -24,6 +25,7 @@ let serviceConfigurationMock: IMock<ServiceConfiguration>;
 let loggerMock: IMock<MockableLogger>;
 let context: Context;
 let dateNow: Date;
+let retryHelperMock: IMock<RetryHelper<void>>;
 
 beforeEach(() => {
     dateNow = new Date();
@@ -36,6 +38,8 @@ beforeEach(() => {
     serviceConfigurationMock = Mock.ofType(ServiceConfiguration);
     loggerMock = Mock.ofType(MockableLogger);
     context = <Context>(<unknown>{ bindingDefinitions: {} });
+    retryHelperMock = Mock.ofType<RetryHelper<void>>();
+    setupRetryHelperMock();
 
     scanBatchRequestFeedController = new ScanBatchRequestFeedController(
         onDemandPageScanRunResultProviderMock.object,
@@ -43,6 +47,7 @@ beforeEach(() => {
         scanDataProviderMock.object,
         partitionKeyFactoryMock.object,
         serviceConfigurationMock.object,
+        retryHelperMock.object,
         loggerMock.object,
     );
 });
@@ -125,7 +130,7 @@ describe(ScanBatchRequestFeedController, () => {
         setupOnDemandPageScanRunResultProviderMock(documents);
         setupPageScanRequestProviderMock(documents);
         setupPartitionKeyFactoryMock(documents);
-        // tslint:disable-next-line: no-null-keyword
+        setupPartitionKeyFactoryMockForTransientDocument(documents);
         loggerMock
             .setup((lm) => lm.trackEvent('ScanRequestAccepted', { batchRequestId: documents[0].id }, { acceptedScanRequests: 2 }))
             .verifiable(Times.once());
@@ -177,7 +182,7 @@ function setupPageScanRequestProviderMock(documents: OnDemandPageScanBatchReques
                     url: request.url,
                     priority: request.priority,
                     itemType: ItemType.onDemandPageScanRequest,
-                    partitionKey: PartitionKey.pageScanRequestDocuments,
+                    partitionKey: `pk-${request.scanId}`,
                 };
 
                 if (!isNil(request.scanNotifyUrl)) {
@@ -186,8 +191,21 @@ function setupPageScanRequestProviderMock(documents: OnDemandPageScanBatchReques
 
                 return res;
             });
-        pageScanRequestProviderMock.setup(async (o) => o.insertRequests(dbDocuments)).verifiable(Times.once());
+        pageScanRequestProviderMock.setup(async (o) => o.writeRequests(It.isValue(dbDocuments))).verifiable(Times.once());
         scanDataProviderMock.setup(async (o) => o.deleteBatchRequest(document)).verifiable(Times.once());
+    });
+}
+
+function setupPartitionKeyFactoryMockForTransientDocument(documents: OnDemandPageScanBatchRequest[]): void {
+    documents.map((document) => {
+        document.scanRunBatchRequest.map((request) => {
+            if (request.scanId !== undefined) {
+                partitionKeyFactoryMock
+                    .setup((o) => o.createPartitionKeyForTransientDocument(ItemType.onDemandPageScanRequest, request.scanId))
+                    .returns(() => `pk-${request.scanId}`)
+                    .verifiable(Times.once());
+            }
+        });
     });
 }
 
@@ -206,7 +224,20 @@ function setupPartitionKeyFactoryMock(documents: OnDemandPageScanBatchRequest[])
 
 function setupMocksWithTimesNever(): void {
     onDemandPageScanRunResultProviderMock.setup(async (o) => o.writeScanRuns(It.isAny())).verifiable(Times.never());
-    pageScanRequestProviderMock.setup(async (o) => o.insertRequests(It.isAny())).verifiable(Times.never());
+    pageScanRequestProviderMock.setup(async (o) => o.writeRequests(It.isAny())).verifiable(Times.never());
     scanDataProviderMock.setup(async (o) => o.deleteBatchRequest(It.isAny())).verifiable(Times.never());
     partitionKeyFactoryMock.setup((o) => o.createPartitionKeyForDocument(It.isAny(), It.isAny())).verifiable(Times.never());
+}
+
+function setupRetryHelperMock(): void {
+    retryHelperMock
+        .setup((r) => r.executeWithRetries(It.isAny(), It.isAny(), maxExecuteCount, retryIntervalMilliseconds))
+        .returns(async (action: () => Promise<void>, errorHandler: (err: Error) => Promise<void>, _: number) => {
+            try {
+                await action();
+            } catch (error) {
+                await errorHandler(new Error(`Execution error.`));
+            }
+        })
+        .verifiable();
 }

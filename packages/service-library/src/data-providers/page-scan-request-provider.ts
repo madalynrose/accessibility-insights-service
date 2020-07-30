@@ -1,6 +1,5 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
-
 import { CosmosContainerClient, cosmosContainerClientTypes, CosmosOperationResponse } from 'azure-services';
 import { inject, injectable } from 'inversify';
 import { ItemType, OnDemandPageScanRequest, PartitionKey } from 'storage-documents';
@@ -14,21 +13,21 @@ export class PageScanRequestProvider {
 
     public async getRequests(
         continuationToken?: string,
-        itemsCount: number = 100,
+        itemCount: number = 100,
     ): Promise<CosmosOperationResponse<OnDemandPageScanRequest[]>> {
-        const query = `SELECT TOP ${itemsCount} * FROM c WHERE c.partitionKey = "${PartitionKey.pageScanRequestDocuments}" and c.itemType = '${ItemType.onDemandPageScanRequest}' ORDER BY c.priority desc`;
+        const query = `SELECT TOP ${itemCount} * FROM c WHERE STARTSWITH(c.partitionKey, '${PartitionKey.pageScanRequestDocuments}', true) and c.itemType = '${ItemType.onDemandPageScanRequest}' ORDER BY c.priority desc`;
 
         return this.cosmosContainerClient.queryDocuments<OnDemandPageScanRequest>(query, continuationToken);
     }
 
-    public async insertRequests(requests: OnDemandPageScanRequest[]): Promise<void> {
-        return this.cosmosContainerClient.writeDocuments(requests, PartitionKey.pageScanRequestDocuments);
+    public async writeRequests(requests: OnDemandPageScanRequest[]): Promise<void> {
+        return this.cosmosContainerClient.writeDocuments(requests);
     }
 
-    public async deleteRequests(ids: string[]): Promise<void> {
+    public async deleteRequests(requests: OnDemandPageScanRequest[]): Promise<void> {
         await Promise.all(
-            ids.map(async (id) => {
-                await this.cosmosContainerClient.deleteDocument(id, PartitionKey.pageScanRequestDocuments);
+            requests.map(async (request) => {
+                await this.cosmosContainerClient.deleteDocument(request.id, request.partitionKey);
             }),
         );
     }

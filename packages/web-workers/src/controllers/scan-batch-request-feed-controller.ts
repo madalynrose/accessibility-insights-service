@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
-import { ServiceConfiguration } from 'common';
+import { RetryHelper, ServiceConfiguration, System } from 'common';
 import { inject, injectable } from 'inversify';
 import { isEmpty } from 'lodash';
 import { ContextAwareLogger, ScanRequestAcceptedMeasurements } from 'logger';
@@ -16,7 +16,6 @@ import {
     OnDemandPageScanBatchRequest,
     OnDemandPageScanRequest,
     OnDemandPageScanResult,
-    PartitionKey,
     ScanRunBatchRequest,
 } from 'storage-documents';
 
@@ -42,6 +41,7 @@ export class ScanBatchRequestFeedController extends WebController {
         @inject(ScanDataProvider) private readonly scanDataProvider: ScanDataProvider,
         @inject(PartitionKeyFactory) private readonly partitionKeyFactory: PartitionKeyFactory,
         @inject(ServiceConfiguration) protected readonly serviceConfig: ServiceConfiguration,
+        @inject(RetryHelper) private readonly retryHelper: RetryHelper<void>,
         @inject(ContextAwareLogger) logger: ContextAwareLogger,
     ) {
         super(logger);
@@ -79,17 +79,32 @@ export class ScanBatchRequestFeedController extends WebController {
     private async processDocument(batchDocument: OnDemandPageScanBatchRequest): Promise<number> {
         const requests = batchDocument.scanRunBatchRequest.filter((request) => request.scanId !== undefined);
         if (requests.length > 0) {
-            await this.writeRequestsToPermanentContainer(requests, batchDocument.id);
-            await this.writeRequestsToQueueContainer(requests, batchDocument.id);
-
-            await this.scanDataProvider.deleteBatchRequest(batchDocument);
-            this.logger.logInfo(
-                `The batch request document deleted from inbound storage container.`,
-                this.getLogPropertiesForRequests(requests, batchDocument.id),
+            await this.executeWithRetries(
+                async () => this.writeRequestsToPermanentContainer(requests, batchDocument.id),
+                'writeRequestsToPermanentContainer',
+            );
+            await this.executeWithRetries(
+                async () => this.writeRequestsToQueueContainer(requests, batchDocument.id),
+                'writeRequestsToQueueContainer',
+            );
+            await this.executeWithRetries(
+                async () => this.deleteBatchRequestFromRequestContainer(requests, batchDocument),
+                'deleteBatchRequestFromRequestContainer',
             );
         }
 
         return requests.length;
+    }
+
+    private async deleteBatchRequestFromRequestContainer(
+        requests: ScanRunBatchRequest[],
+        batchDocument: OnDemandPageScanBatchRequest,
+    ): Promise<void> {
+        await this.scanDataProvider.deleteBatchRequest(batchDocument);
+        this.logger.logInfo(
+            `The batch request document deleted from inbound storage container.`,
+            this.getLogPropertiesForRequests(requests, batchDocument.id),
+        );
     }
 
     private async writeRequestsToPermanentContainer(requests: ScanRunBatchRequest[], batchRequestId: string): Promise<void> {
@@ -137,12 +152,15 @@ export class ScanBatchRequestFeedController extends WebController {
                 url: request.url,
                 priority: request.priority,
                 itemType: ItemType.onDemandPageScanRequest,
-                partitionKey: PartitionKey.pageScanRequestDocuments,
+                partitionKey: this.partitionKeyFactory.createPartitionKeyForTransientDocument(
+                    ItemType.onDemandPageScanRequest,
+                    request.scanId,
+                ),
                 ...scanNotifyUrl,
             };
         });
 
-        await this.pageScanRequestProvider.insertRequests(requestDocuments);
+        await this.pageScanRequestProvider.writeRequests(requestDocuments);
         requests.map((request) => {
             this.logger.logInfo('Created new scan request document in queue storage container.', {
                 batchRequestId,
@@ -153,6 +171,19 @@ export class ScanBatchRequestFeedController extends WebController {
         this.logger.logInfo(
             `Added scan requests to scan queue storage container.`,
             this.getLogPropertiesForRequests(requests, batchRequestId),
+        );
+    }
+
+    private async executeWithRetries(action: () => Promise<void>, actionName: string): Promise<void> {
+        await this.retryHelper.executeWithRetries(
+            action,
+            async (e: Error) => {
+                this.logger.logError(`Failed to invoke ${actionName}() function. Retrying on error.`, {
+                    error: System.serializeError(e),
+                });
+            },
+            3,
+            2000,
         );
     }
 

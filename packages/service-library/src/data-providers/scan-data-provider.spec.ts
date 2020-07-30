@@ -3,22 +3,27 @@
 import 'reflect-metadata';
 
 import { CosmosContainerClient } from 'azure-services';
-import { ItemType, OnDemandPageScanBatchRequest, PartitionKey, ScanRunBatchRequest } from 'storage-documents';
-import { IMock, It, Mock, Times } from 'typemoq';
+import { ItemType, OnDemandPageScanBatchRequest, ScanRunBatchRequest } from 'storage-documents';
+import { IMock, It, Mock } from 'typemoq';
+import { PartitionKeyFactory } from '../factories/partition-key-factory';
 import { ScanDataProvider } from './scan-data-provider';
 
-// tslint:disable: no-unsafe-any
+// tslint:disable: no-unsafe-any no-object-literal-type-assertion
 
 let scanDataProvider: ScanDataProvider;
 let cosmosContainerClientMock: IMock<CosmosContainerClient>;
+let partitionKeyFactoryMock: IMock<PartitionKeyFactory>;
 
 beforeEach(() => {
     cosmosContainerClientMock = Mock.ofType<CosmosContainerClient>();
-    scanDataProvider = new ScanDataProvider(cosmosContainerClientMock.object);
+    partitionKeyFactoryMock = Mock.ofType(PartitionKeyFactory);
+    scanDataProvider = new ScanDataProvider(cosmosContainerClientMock.object, partitionKeyFactoryMock.object);
 });
 
 describe(ScanDataProvider, () => {
     it('write scan run batch request to a Cosmos DB', async () => {
+        const batchId = 'batchId-1';
+        const bucketId = 'bucket-1';
         const scanRunBatchResponse: ScanRunBatchRequest[] = [
             {
                 scanId: 'scanId-1',
@@ -26,20 +31,40 @@ describe(ScanDataProvider, () => {
                 priority: 5,
             },
         ];
+        const document = {
+            id: batchId,
+            itemType: ItemType.scanRunBatchRequest,
+            partitionKey: bucketId,
+            scanRunBatchRequest: scanRunBatchResponse,
+        };
 
-        let document: OnDemandPageScanBatchRequest;
-        cosmosContainerClientMock
-            .setup(async (o) => o.writeDocument(It.isAny()))
-            .callback(async (d) => (document = d))
-            .verifiable(Times.once());
+        cosmosContainerClientMock.setup(async (o) => o.writeDocument(It.isValue(document))).verifiable();
+        setupVerifiableGetNodeCall(bucketId, batchId);
 
-        const batchId = 'batchId-1';
         await scanDataProvider.writeScanRunBatchRequest(batchId, scanRunBatchResponse);
 
-        expect(document.scanRunBatchRequest).toEqual(scanRunBatchResponse);
-        expect(document.id).toEqual(batchId);
-        expect(document.itemType).toEqual(ItemType.scanRunBatchRequest);
-        expect(document.partitionKey).toEqual(PartitionKey.scanRunBatchRequests);
+        cosmosContainerClientMock.verifyAll();
+        partitionKeyFactoryMock.verifyAll();
+    });
+
+    it('delete batch request from Cosmos DB', async () => {
+        const document = {
+            id: 'batchId-1',
+            partitionKey: 'bucket-1',
+        } as OnDemandPageScanBatchRequest;
+        cosmosContainerClientMock.setup(async (o) => o.deleteDocument(document.id, document.partitionKey)).verifiable();
+
+        await scanDataProvider.deleteBatchRequest(document);
+
         cosmosContainerClientMock.verifyAll();
     });
 });
+
+function setupVerifiableGetNodeCall(bucket: string, ...scanIds: string[]): void {
+    scanIds.forEach((scanId) => {
+        partitionKeyFactoryMock
+            .setup((o) => o.createPartitionKeyForTransientDocument(ItemType.scanRunBatchRequest, scanId))
+            .returns(() => bucket)
+            .verifiable();
+    });
+}
