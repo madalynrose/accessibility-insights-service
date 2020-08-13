@@ -22,7 +22,7 @@
     },
     "homepage": "https://github.com/manishsat/accessibility-insights-service#readme",
     "devDependencies": {
-        "@types/jest": "^25.2.1",
+        "@types/jest": "^26.0.9",
         "@types/lodash": "^4.14.158",
         "@types/request": "^2.48.5",
         "@types/verror": "^1.10.4",
@@ -31,7 +31,7 @@
         "fork-ts-checker-webpack-plugin": "^5.0.7",
         "jest": "^26.1.0",
         "jest-circus": "^25.5.3",
-        "jest-junit": "^11.0.1",
+        "jest-junit": "^11.1.0",
         "mockdate": "^3.0.2",
         "npm-run-all": "^4.1.5",
         "rimraf": "^3.0.2",
@@ -61,7 +61,7 @@
         "pretty-format": "^26.1.0",
         "reflect-metadata": "^0.1.13",
         "request": "^2.88.0",
-        "request-promise": "^4.2.4",
+        "request-promise": "^4.2.6",
         "storage-documents": "1.0.0",
         "verror": "^1.10.0"
     }
