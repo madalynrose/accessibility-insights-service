@@ -3,7 +3,7 @@
 import 'reflect-metadata';
 
 import { CosmosContainerClient, CosmosOperationResponse } from 'azure-services';
-import { ItemType, OnDemandPageScanRequest, PartitionKey } from 'storage-documents';
+import { ItemType, OnDemandPageScanRequest } from 'storage-documents';
 import { IMock, Mock, MockBehavior } from 'typemoq';
 import { PageScanRequestProvider } from './page-scan-request-provider';
 
@@ -61,7 +61,7 @@ describe(PageScanRequestProvider, () => {
             statusCode: 200,
         } as CosmosOperationResponse<OnDemandPageScanRequest[]>;
 
-        const query = `SELECT TOP ${itemCount} * FROM c WHERE STARTSWITH(c.partitionKey, '${PartitionKey.pageScanRequestDocuments}', true) and c.itemType = '${ItemType.onDemandPageScanRequest}' ORDER BY c.priority desc`;
+        const query = `SELECT TOP ${itemCount} * FROM c WHERE STARTSWITH(c.partitionKey, '${ItemType.onDemandPageScanRequest}', true) and c.itemType = '${ItemType.onDemandPageScanRequest}' ORDER BY c.priority desc`;
         cosmosContainerClientMock
             .setup((c) => c.queryDocuments(query, continuationToken))
             .returns(() => Promise.resolve(response))

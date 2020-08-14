@@ -116,7 +116,8 @@
             "typemoq",
             "upsert"
         ],
-        "csharp.suppressDotnetRestoreNotification": true
+        "csharp.suppressDotnetRestoreNotification": true,
+        "debug.internalConsoleOptions": "neverOpen"
     },
     "extensions": {
         "recommendations": [

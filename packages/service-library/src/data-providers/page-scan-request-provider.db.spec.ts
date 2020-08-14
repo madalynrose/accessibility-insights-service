@@ -3,7 +3,7 @@
 import 'reflect-metadata';
 
 import { CosmosContainerClient } from 'azure-services';
-import { ItemType, OnDemandPageScanRequest, PartitionKey } from 'storage-documents';
+import { ItemType, OnDemandPageScanRequest } from 'storage-documents';
 import { Mock } from 'typemoq';
 import { DbMockHelper } from '../test-utilities/db-mock-helpers';
 import { MockableLogger } from '../test-utilities/mockable-logger';
@@ -47,14 +47,14 @@ describe('PageScanRequestProvider.Db', () => {
                 url: 'url1',
                 priority: 0,
                 itemType: ItemType.onDemandPageScanRequest,
-                partitionKey: PartitionKey.pageScanRequestDocuments,
+                partitionKey: 'pageScanRequestDocuments',
             };
             const request2: OnDemandPageScanRequest = {
                 id: 'id2',
                 url: 'url2',
                 priority: 10,
                 itemType: ItemType.onDemandPageScanRequest,
-                partitionKey: PartitionKey.pageScanRequestDocuments,
+                partitionKey: 'pageScanRequestDocuments',
             };
 
             const request3: OnDemandPageScanRequest = {
@@ -62,7 +62,7 @@ describe('PageScanRequestProvider.Db', () => {
                 url: 'url3',
                 priority: 5,
                 itemType: ItemType.onDemandPageScanRequest,
-                partitionKey: PartitionKey.pageScanRequestDocuments,
+                partitionKey: 'pageScanRequestDocuments',
             };
 
             await testSubject.writeRequests([request1, request2, request3]);
@@ -81,14 +81,14 @@ describe('PageScanRequestProvider.Db', () => {
                 url: 'url1',
                 priority: 10,
                 itemType: ItemType.onDemandPageScanRequest,
-                partitionKey: PartitionKey.pageScanRequestDocuments,
+                partitionKey: 'pageScanRequestDocuments',
             };
             const request2: OnDemandPageScanRequest = {
                 id: 'id2',
                 url: 'url2',
                 priority: 0,
                 itemType: ItemType.onDemandPageScanRequest,
-                partitionKey: PartitionKey.pageScanRequestDocuments,
+                partitionKey: 'pageScanRequestDocuments',
             };
 
             const requestNotToBeDeleted: OnDemandPageScanRequest = {
@@ -96,7 +96,7 @@ describe('PageScanRequestProvider.Db', () => {
                 url: 'url2',
                 priority: 0,
                 itemType: ItemType.onDemandPageScanRequest,
-                partitionKey: PartitionKey.pageScanRequestDocuments,
+                partitionKey: 'pageScanRequestDocuments',
             };
 
             await testSubject.writeRequests([request1, request2, requestNotToBeDeleted]);
