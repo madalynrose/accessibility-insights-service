@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
-
+import { System } from 'common';
+import * as moment from 'moment';
 import * as nodeFetch from 'node-fetch';
 import * as yargs from 'yargs';
 
@@ -58,6 +59,7 @@ function getRequestOptions(): nodeFetch.RequestInit {
         headers: myHeaders,
         body: raw,
         redirect: 'follow',
+        timeout: 5000,
     };
 }
 
@@ -68,33 +70,44 @@ async function runLoadTest(): Promise<void> {
     const requestOptions = getRequestOptions();
     const responseCountByStatusCode: { [key: number]: number } = {};
 
-    const submitRequest = async () => {
+    const submitRequest = async (requestId: number): Promise<void> => {
+        let response: nodeFetch.Response;
         try {
-            const response = await nodeFetch.default(inputArgs.requestUrl, requestOptions);
+            response = await nodeFetch.default(inputArgs.requestUrl, requestOptions);
             successfulRequests += 1;
             responseCountByStatusCode[response.status] = (responseCountByStatusCode[response.status] ?? 0) + 1;
 
-            console.log(`received response with status ${response.status}`);
-            console.log(`Response body ${await response.text()}`);
+            console.log(
+                `[${moment().toISOString()}][Request ID ${requestId}] Status code ${
+                    response.status
+                } Response body ${await response.text()}`,
+            );
         } catch (error) {
             errorRequests += 1;
-            console.log('error response', error);
+            console.log(
+                `[${moment().toISOString()}][Request ID ${requestId}] Status code ${
+                    response !== undefined ? response.status : 'unknown'
+                } Request error`,
+                System.serializeError(error),
+            );
         }
     };
 
     for (let i = 0; i < inputArgs.maxLoad; i += 1) {
-        promises.push(submitRequest());
+        promises.push(submitRequest(i));
     }
 
-    console.log(`Submitted Requests - ${inputArgs.maxLoad}. Waiting for requests to complete.....`);
+    console.log(`[${moment().toISOString()}] Waiting for requests to complete...`);
     await Promise.all(promises);
 
-    console.log(`Total Requests Submitted: ${inputArgs.maxLoad}`);
-    console.log(`Completed Requests ${successfulRequests}`);
-    console.log('Completed Request count by status code', responseCountByStatusCode);
-    console.log(`Failed Requests ${errorRequests}`);
+    console.log(`
+[${moment().toISOString()}] Load run completed.
+Total requests submitted: ${inputArgs.maxLoad}
+Completed requests ${successfulRequests}
+Failed Requests ${errorRequests}
+Completed Request count by response status code', ${responseCountByStatusCode}`);
 }
 
 runLoadTest().catch((error) => {
-    console.log('Error occurred', error);
+    console.log(`[${moment().toISOString()}] Error occurred`, System.serializeError(error));
 });
