@@ -17,7 +17,7 @@ export class Scanner {
     public async scan(url: string): Promise<AxeScanResults> {
         const scanConfig = await this.serviceConfig.getConfigValue('scanConfig');
 
-        return this.promiseUtils.waitFor(this.scanImpl(url), scanConfig.scanTimeoutInMin * 60000, () =>
+        return this.promiseUtils.waitFor(this.scanImpl(url), 20 * 1000, () =>
             Promise.resolve({
                 error: {
                     errorType: 'ScanTimeout',

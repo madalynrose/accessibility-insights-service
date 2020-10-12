@@ -13,11 +13,23 @@ export class WebDriver {
         private readonly puppeteer: typeof Puppeteer = Puppeteer,
     ) {}
 
-    public async launch(browserExecutablePath?: string): Promise<Puppeteer.Browser> {
+    // Run external chromium
+    public async launch(browserExecutablePath: string = 'google-chrome-stable'): Promise<Puppeteer.Browser> {
         this.browser = await this.puppeteer.launch({
             executablePath: browserExecutablePath,
-            headless: true,
-            args: ['--disable-dev-shm-usage', '--no-sandbox'],
+            dumpio: true,
+            headless: false,
+            args: [
+                '--no-sandbox',
+                '--disable-dev-shm-usage',
+                '--disable-setuid-sandbox',
+                '--disable-gpu',
+                '--disable-infobars',
+                '--browser-test',
+                '--memory-pressure-off',
+                '--full-memory-crash-report',
+                '--unlimited-storage',
+            ],
             defaultViewport: {
                 width: 1920,
                 height: 1080,

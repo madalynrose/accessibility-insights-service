@@ -4,6 +4,7 @@ import { System } from 'common';
 import { inject, injectable, optional } from 'inversify';
 import { GlobalLogger } from 'logger';
 import * as Puppeteer from 'puppeteer';
+import axe from 'axe-core';
 import { AxeScanResults } from './axe-scan-results';
 import { AxePuppeteerFactory } from './factories/axe-puppeteer-factory';
 import { WebDriver } from './web-driver';
@@ -33,13 +34,15 @@ export class Page {
     public async create(browserExecutablePath?: string): Promise<void> {
         this.browser = await this.webDriver.launch(browserExecutablePath);
         this.page = await this.browser.newPage();
+        this.logger?.logInfo('Open browser page to start scan.');
 
         this.har = new this.puppeteerHar(this.page);
-        await this.har.start({ path: `${__dirname}/trace-har.json` });
+        await this.har.start({ path: `/usr/trace-har.json` });
     }
 
     public async scanForA11yIssues(url: string, contentSourcePath?: string): Promise<AxeScanResults> {
         let scanResults: AxeScanResults;
+        this.logger?.logInfo('Loading page content.');
         const response = await this.pageNavigator.navigate(url, this.page, async (browserError) => {
             this.logger?.logError('Page navigation error', { browserError: System.serializeError(browserError) });
 
@@ -55,7 +58,7 @@ export class Page {
 
     public async close(): Promise<void> {
         if (this.har !== undefined) {
-            await this.har.stop();
+            // await this.har.stop();
         }
 
         if (this.webDriver !== undefined) {
@@ -64,8 +67,23 @@ export class Page {
     }
 
     private async scanPageForIssues(response: Puppeteer.Response, contentSourcePath?: string): Promise<AxeScanResults> {
-        const axePuppeteer = await this.axePuppeteerFactory.createAxePuppeteer(this.page, contentSourcePath);
-        const axeResults = await axePuppeteer.analyze();
+        let axeResults: axe.AxeResults;
+        // await this.har.stop();
+        await this.page.screenshot({ path: `/usr/page.jpeg`, type: 'jpeg', fullPage: true });
+
+        let axePuppeteer = await this.axePuppeteerFactory.createAxePuppeteer(this.page, contentSourcePath);
+        axePuppeteer = axePuppeteer.options({ iframes: false, performanceTimer: true });
+        try {
+            this.logger?.logInfo('Scanning page for a11y issues.');
+            axeResults = await axePuppeteer.analyze();
+        } catch (error) {
+            this.logger?.logError('axe puppeteer error', { error: System.serializeError(error) });
+        } finally {
+            if (this.har !== undefined) {
+                await this.har.stop();
+            }
+        }
+        this.logger?.logInfo('Scanning page for a11y issues has been completed.');
 
         const scanResults: AxeScanResults = {
             results: axeResults,
