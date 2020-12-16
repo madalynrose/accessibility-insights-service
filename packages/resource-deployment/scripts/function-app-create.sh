@@ -150,6 +150,10 @@ function deployWebWorkersFunction() {
     deployFunctionApp "web-workers-allyfuncapp" "${0%/*}/../templates/function-web-workers-app-template.json" "$webWorkersFuncAppName"
 }
 
+function deployScanNotificationFunction() {
+    deployFunctionApp "scan-noficiation-a11yfuncapp" "${0%/*}/../templates/function-scan-notification-app-template.json" "$scanNotificationFuncAppName"
+}
+
 function enableStorageAccess() {
     role="Storage Blob Data Contributor"
     scope="--scope /subscriptions/$subscription/resourceGroups/$resourceGroupName/providers/Microsoft.Storage/storageAccounts/$storageAccountName"
@@ -186,12 +190,17 @@ function publishWebWorkerScripts() {
     publishFunctionAppScripts "web-workers" $webWorkersFuncAppName
 }
 
+function publishScanNotificationScripts() {
+    publishFunctionAppScripts "scan-notification" $scanNotificationFuncAppName
+}
+
 function setupAzureFunctions() {
     installAzureFunctionsCoreTools
 
     local functionSetupProcesses=(
         "deployWebApiFunction"
         "deployWebWorkersFunction"
+        "deployScanNotificationFunction"
     )
     runCommandsWithoutSecretsInParallel functionSetupProcesses
 
@@ -200,6 +209,7 @@ function setupAzureFunctions() {
     functionSetupProcesses=(
         "publishWebApiScripts"
         "publishWebWorkerScripts"
+        "publishScanNotificationScripts"
     )
     runCommandsWithoutSecretsInParallel functionSetupProcesses
 
