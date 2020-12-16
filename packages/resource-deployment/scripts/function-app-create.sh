@@ -163,7 +163,7 @@ function enableStorageAccess() {
 function enableCosmosAccess() {
     cosmosAccountId=$(az cosmosdb show --name "$cosmosAccountName" --resource-group "$resourceGroupName" --query id -o tsv)
     scope="--scope $cosmosAccountId"
-    
+
     role="DocumentDB Account Contributor"
     . "${0%/*}/role-assign-for-sp.sh"
 }
@@ -180,6 +180,11 @@ function enableManagedIdentityOnFunctions() {
 
     enableStorageAccess
     enableCosmosAccess
+
+    getFunctionAppPrincipalId $scanNotificationFuncAppName
+    . "${0%/*}/key-vault-enable-msi.sh"
+
+    enableStorageAccess
 }
 
 function publishWebApiScripts() {
