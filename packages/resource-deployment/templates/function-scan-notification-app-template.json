@@ -57,6 +57,9 @@
             "name": "[parameters('name')]",
             "location": "[parameters('location')]",
             "kind": "functionapp",
+            "identity": {
+                "type": "SystemAssigned"
+            },
             "properties": {
                 "httpsOnly": true,
                 "siteConfig": {
