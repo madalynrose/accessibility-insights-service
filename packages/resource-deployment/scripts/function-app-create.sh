@@ -150,8 +150,8 @@ function deployWebWorkersFunction() {
     deployFunctionApp "web-workers-allyfuncapp" "${0%/*}/../templates/function-web-workers-app-template.json" "$webWorkersFuncAppName"
 }
 
-function deployScanNotificationFunction() {
-    deployFunctionApp "scan-noficiation-a11yfuncapp" "${0%/*}/../templates/function-scan-notification-app-template.json" "$scanNotificationFuncAppName"
+function deployE2EWebApisFunction() {
+    deployFunctionApp "e2e-web-apis-a11yfuncapp" "${0%/*}/../templates/function-e2e-web-apis-app-template.json" "$e2eWebApisFuncAppName"
 }
 
 function enableStorageAccess() {
@@ -181,7 +181,7 @@ function enableManagedIdentityOnFunctions() {
     enableStorageAccess
     enableCosmosAccess
 
-    getFunctionAppPrincipalId $scanNotificationFuncAppName
+    getFunctionAppPrincipalId $e2eWebApisFuncAppName
     . "${0%/*}/key-vault-enable-msi.sh"
 
     enableStorageAccess
@@ -195,8 +195,8 @@ function publishWebWorkerScripts() {
     publishFunctionAppScripts "web-workers" $webWorkersFuncAppName
 }
 
-function publishScanNotificationScripts() {
-    publishFunctionAppScripts "scan-notification" $scanNotificationFuncAppName
+function publishE2EWebApisScripts() {
+    publishFunctionAppScripts "e2e-web-apis" $e2eWebApisFuncAppName
 }
 
 function setupAzureFunctions() {
@@ -205,7 +205,7 @@ function setupAzureFunctions() {
     local functionSetupProcesses=(
         "deployWebApiFunction"
         "deployWebWorkersFunction"
-        "deployScanNotificationFunction"
+        "deployE2EWebApisFunction"
     )
     runCommandsWithoutSecretsInParallel functionSetupProcesses
 
@@ -214,7 +214,7 @@ function setupAzureFunctions() {
     functionSetupProcesses=(
         "publishWebApiScripts"
         "publishWebWorkerScripts"
-        "publishScanNotificationScripts"
+        "publishE2EWebApisScripts"
     )
     runCommandsWithoutSecretsInParallel functionSetupProcesses
 
