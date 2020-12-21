@@ -17,6 +17,7 @@ import { OrchestrationSteps, OrchestrationStepsImpl } from '../orchestration-ste
 export class HealthMonitorOrchestrationController extends WebController {
     public readonly apiVersion = '1.0';
     public readonly apiName = 'health-monitor-orchestration';
+    public readonly scanNotificationUrl: string;
 
     public constructor(
         @inject(ServiceConfiguration) protected readonly serviceConfig: ServiceConfiguration,
@@ -24,6 +25,7 @@ export class HealthMonitorOrchestrationController extends WebController {
         private readonly df = durableFunctions,
     ) {
         super(logger);
+        this.scanNotificationUrl = `${process.env.WEB_API_BASE_URL}/scan-notification-url`;
     }
 
     protected async handleRequest(...args: any[]): Promise<void> {
@@ -55,6 +57,7 @@ export class HealthMonitorOrchestrationController extends WebController {
     }
 
     private getOrchestrationExecutor(): (context: IOrchestrationFunctionContext) => void {
+        const scanNotifyUrl = this.scanNotificationUrl;
         return this.df.orchestrator(function* (
             context: IOrchestrationFunctionContext,
         ): Generator<Task | TaskSet, void, SerializableResponse & void> {
@@ -69,7 +72,7 @@ export class HealthMonitorOrchestrationController extends WebController {
 
             yield* orchestrationSteps.invokeHealthCheckRestApi();
 
-            const scanId = yield* orchestrationSteps.invokeSubmitScanRequestRestApi(availabilityTestConfig.urlToScan);
+            const scanId = yield* orchestrationSteps.invokeSubmitScanRequestRestApi(availabilityTestConfig.urlToScan, scanNotifyUrl);
             const consolidatedScanId = yield* orchestrationSteps.invokeSubmitConsolidatedScanRequestRestApi(
                 availabilityTestConfig.urlToScan,
                 availabilityTestConfig.consolidatedReportId,
@@ -91,6 +94,9 @@ export class HealthMonitorOrchestrationController extends WebController {
             yield* orchestrationSteps.invokeGetScanReportRestApi(scanId, reportId);
             yield* orchestrationSteps.invokeGetScanReportRestApi(consolidatedScanId, consolidatedReportId);
             yield* orchestrationSteps.runFunctionalTestGroups(testContextData, e2eTestGroupNames.scanReportTests);
+
+            yield* orchestrationSteps.waitForScanCompletionNotification(scanId);
+            yield* orchestrationSteps.runFunctionalTestGroups(testContextData, e2eTestGroupNames.postScanCompletionNotificationTests);
 
             // The last test group in a functional test suite to indicated a suite run completion
             yield* orchestrationSteps.runFunctionalTestGroups(testContextData, e2eTestGroupNames.finalizerTests);

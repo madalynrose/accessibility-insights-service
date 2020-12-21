@@ -18,6 +18,7 @@ module.exports = (env) => {
             ['get-scans-batch-func']: path.resolve('./get-scans-batch-func/index.ts'),
             ['get-report-func']: path.resolve('./get-report-func/index.ts'),
             ['check-health-func']: path.resolve('./check-health-func/index.ts'),
+            ['scan-notification-client-func']: path.resolve('./scan-notification-client-func/index.ts'),
         },
         mode: 'development',
         module: {

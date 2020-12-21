@@ -9,7 +9,7 @@ import * as durableFunctions from 'durable-functions';
 import { IOrchestrationFunctionContext, Task, TaskSet } from 'durable-functions/lib/src/classes';
 import { TestContextData, TestEnvironment, TestGroupName } from 'functional-tests';
 import { Logger } from 'logger';
-import { ScanRunResultResponse } from 'service-library';
+import { ScanRunResultResponse, ScanCompletedNotification } from 'service-library';
 import { IMock, It, Mock, Times } from 'typemoq';
 import { OrchestrationSteps } from '../orchestration-steps';
 import { GeneratorExecutor } from '../test-utilities/generator-executor';
@@ -111,6 +111,19 @@ class OrchestrationStepsStub implements OrchestrationSteps {
         } as ScanRunResultResponse;
 
         return yield scanRunResultResponse;
+    }
+
+    public *waitForScanCompletionNotification(scanId: string): Generator<any, ScanCompletedNotification, any> {
+        // this.orchestratorStepsCallCount.waitForScanCompletionCount += 1;
+        this.throwExceptionIfExpected();
+        expect(scanId).toBe(this.scanId);
+
+        const scanCompletionNotification: ScanCompletedNotification = {
+            scanNotifyUrl: 'this-is-some-url',
+            state: 'sent',
+        };
+
+        return yield scanCompletionNotification;
     }
 
     public *validateScanRequestSubmissionState(scanId: string): Generator<Task, void, SerializableResponse & void> {
