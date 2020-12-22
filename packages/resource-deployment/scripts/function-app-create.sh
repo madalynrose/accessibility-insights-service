@@ -151,7 +151,7 @@ function deployWebWorkersFunction() {
 }
 
 function deployE2EWebApisFunction() {
-    deployFunctionApp "e2e-web-apis-a11yfuncapp" "${0%/*}/../templates/function-e2e-web-apis-app-template.json" "$e2eWebApisFuncAppName"
+    deployFunctionApp "e2e-web-apis-allyfuncapp" "${0%/*}/../templates/function-e2e-web-apis-app-template.json" "$e2eWebApisFuncAppName"
 }
 
 function enableStorageAccess() {
