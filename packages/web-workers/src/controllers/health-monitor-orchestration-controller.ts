@@ -10,6 +10,7 @@ import { ContextAwareLogger } from 'logger';
 import { WebController } from 'service-library';
 import { e2eTestGroupNames } from '../e2e-test-group-names';
 import { OrchestrationSteps, OrchestrationStepsImpl } from '../orchestration-steps';
+import { WebApiConfig } from './web-api-config';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -22,10 +23,11 @@ export class HealthMonitorOrchestrationController extends WebController {
     public constructor(
         @inject(ServiceConfiguration) protected readonly serviceConfig: ServiceConfiguration,
         @inject(ContextAwareLogger) logger: ContextAwareLogger,
+        @inject(WebApiConfig) webApiConfig: WebApiConfig,
         private readonly df = durableFunctions,
     ) {
         super(logger);
-        this.scanNotificationUrl = `${process.env.WEB_API_BASE_URL}/scan-notification-url`;
+        this.scanNotificationUrl = `${webApiConfig.baseUrl}/scan-notification-url`;
     }
 
     protected async handleRequest(...args: any[]): Promise<void> {

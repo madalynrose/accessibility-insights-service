@@ -15,6 +15,7 @@ import { OrchestrationSteps } from '../orchestration-steps';
 import { GeneratorExecutor } from '../test-utilities/generator-executor';
 import { MockableLogger } from '../test-utilities/mockable-logger';
 import { HealthMonitorOrchestrationController } from './health-monitor-orchestration-controller';
+import { WebApiConfig } from './web-api-config';
 
 /* eslint-disable
   no-empty,
@@ -32,9 +33,10 @@ class TestableHealthMonitorOrchestrationController extends HealthMonitorOrchestr
         public availabilityTestConfig: AvailabilityTestConfig,
         serviceConfig: ServiceConfiguration,
         logger: Logger,
+        webApiConfig: WebApiConfig,
         df: typeof durableFunctions,
     ) {
-        super(serviceConfig, logger, df);
+        super(serviceConfig, logger, webApiConfig, df);
     }
 
     protected createOrchestrationSteps(
@@ -180,6 +182,7 @@ describe('HealthMonitorOrchestrationController', () => {
     let contextStub: IOrchestrationFunctionContext;
     let df: IMock<typeof durableFunctions>;
     let availabilityTestConfig: AvailabilityTestConfig;
+    let webApiConfigStub: WebApiConfig;
 
     let orchestratorGeneratorMock: IMock<(ctxt: IOrchestrationFunctionContext) => void>;
     let orchestratorStepsStub: OrchestrationStepsStub;
@@ -198,6 +201,9 @@ describe('HealthMonitorOrchestrationController', () => {
         serviceConfigurationMock = Mock.ofType(ServiceConfiguration);
         loggerMock = Mock.ofType(MockableLogger);
         orchestratorStepsStub = new OrchestrationStepsStub(availabilityTestConfig);
+        webApiConfigStub = {
+            baseUrl: 'baseurl',
+        };
 
         contextStub = ({
             bindingData: {},
@@ -223,6 +229,7 @@ describe('HealthMonitorOrchestrationController', () => {
             availabilityTestConfig,
             serviceConfigurationMock.object,
             loggerMock.object,
+            webApiConfigStub,
             df.object,
         );
     });
