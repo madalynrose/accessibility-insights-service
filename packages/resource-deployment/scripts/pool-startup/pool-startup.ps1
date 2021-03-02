@@ -8,7 +8,7 @@ Param(
 )
 
 $global:keyvault = $keyvault
-$global:NODE_VERSION="12.20.2"
+$global:NODE_VERSION = "12.20.2"
 
 function exitWithUsageInfo {
     Write-Output "Usage: pool-startup.ps1 -k <key vault name>"
