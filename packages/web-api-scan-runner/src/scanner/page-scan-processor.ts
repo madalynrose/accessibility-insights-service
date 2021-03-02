@@ -47,8 +47,8 @@ export class PageScanProcessor {
             await this.page.create({
                 browserWSEndpoint: `ws://host.docker.internal:8585`,
             });
-        } catch {
-            this.logger.logInfo('Could not connect to remote browser, falling back to local launch');
+        } catch (e) {
+            this.logger.logError('Could not connect to remote browser, falling back to local launch', { error: System.serializeError(e) });
             await this.page.create();
         }
         await this.page.navigateToUrl(url);
