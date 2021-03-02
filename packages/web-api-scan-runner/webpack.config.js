@@ -81,6 +81,11 @@ module.exports = (env) => {
                         from: 'web-api-scan-runner.ps1',
                         to: '',
                     },
+                    {
+                        context: './docker-image-config',
+                        from: 'configure-docker-dns.ps1',
+                        to: '',
+                    },
                 ],
             }),
         ],
