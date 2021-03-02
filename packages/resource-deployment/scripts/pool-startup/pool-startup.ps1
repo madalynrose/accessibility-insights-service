@@ -22,12 +22,17 @@ function installBootstrapPackages() {
 }
 
 function installBrowserHostServiceDependencies() {
-    Write-Output "Installing node"
-    Invoke-WebRequest "https://nodejs.org/dist/v$global:NODE_VERSION/node-v$global:NODE_VERSION-win-x64.zip" -OutFile 'node.zip' -UseBasicParsing
-    Expand-Archive node.zip -DestinationPath C:\
-    Rename-Item -Path "C:\node-v$global:NODE_VERSION-win-x64" -NewName 'C:\nodejs'
+    $nodeInstallDir="C:\nodejs"
+    if(Test-Path -Path $nodeInstallDir) {
+        Write-Output "Directory $nodeInstallDir already exists, skipping node install"
+    } else {
+        Write-Output "Installing node"
+        Invoke-WebRequest "https://nodejs.org/dist/v$global:NODE_VERSION/node-v$global:NODE_VERSION-win-x64.zip" -OutFile 'node.zip' -UseBasicParsing
+        Expand-Archive node.zip -DestinationPath C:\
+        Rename-Item -Path "C:\node-v$global:NODE_VERSION-win-x64" -NewName $nodeInstallDir
 
-    $env:PATH="$env:PATH;C:\nodejs"
+        $env:PATH="$env:PATH;$nodeInstallDir"
+    }
 
     npm install puppeteer@5.5.0 #TODO: create and upload a package.json to get the right version automatically
 }
@@ -49,6 +54,6 @@ Write-Output "Invoking custom pool startup script"
 ./custom-pool-post-startup.ps1
 
 Write-Output "Starting browser host service"
-node host-browser-service.js
+Start-Process node host-browser-service.js
 
 Write-Output "Successfully completed pool startup script execution"
