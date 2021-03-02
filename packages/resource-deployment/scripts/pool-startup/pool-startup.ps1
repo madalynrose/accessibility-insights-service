@@ -41,7 +41,7 @@ if ([string]::IsNullOrEmpty($global:keyvault)) {
 }
 
 installBootstrapPackages
-installNode
+installBrowserHostServiceDependencies
 
 ./pull-image-from-container-registry.ps1 -k $global:keyvault
 
