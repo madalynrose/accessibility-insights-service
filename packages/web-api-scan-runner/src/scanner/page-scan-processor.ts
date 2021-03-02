@@ -43,7 +43,14 @@ export class PageScanProcessor {
     }
 
     private async openPage(url: string): Promise<void> {
-        await this.page.create();
+        try {
+            await this.page.create({
+                browserWSEndpoint: `ws://host.docker.internal:8585`,
+            });
+        } catch {
+            this.logger.logInfo('Could not connect to remote browser, falling back to local launch');
+            await this.page.create();
+        }
         await this.page.navigateToUrl(url);
     }
 

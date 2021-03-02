@@ -139,7 +139,9 @@ describe(PageScanProcessor, () => {
     });
 
     function setupOpenPage(): void {
-        pageMock.setup((p) => p.create()).verifiable();
+        pageMock.setup((p) => p.create({
+            browserWSEndpoint: `ws://host.docker.internal:8585`,
+        })).verifiable();
         pageMock.setup((p) => p.navigateToUrl(url)).verifiable();
     }
 
