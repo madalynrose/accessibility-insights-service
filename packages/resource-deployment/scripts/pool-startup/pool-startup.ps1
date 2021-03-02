@@ -21,13 +21,15 @@ function installBootstrapPackages() {
     az upgrade
 }
 
-function installNode() {
+function installBrowserHostServiceDependencies() {
     Write-Output "Installing node"
     Invoke-WebRequest "https://nodejs.org/dist/v$global:NODE_VERSION/node-v$global:NODE_VERSION-win-x64.zip" -OutFile 'node.zip' -UseBasicParsing
     Expand-Archive node.zip -DestinationPath C:\
     Rename-Item -Path "C:\node-v$global:NODE_VERSION-win-x64" -NewName 'C:\nodejs'
 
     $env:PATH="$env:PATH;C:\nodejs"
+
+    npm install puppeteer@5.5.0 #TODO: create and upload a package.json to get the right version automatically
 }
 
 if ([string]::IsNullOrEmpty($global:keyvault)) {
