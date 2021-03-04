@@ -35,7 +35,7 @@ function installBrowserHostServiceDependencies() {
         Rename-Item -Path "C:\node-v$global:NODE_VERSION-win-x64" -NewName $nodeInstallDir
     }
 
-    $current = Get-Location
+    $current = pwd
     rm -r -Force \service-wd
     mkdir \service-wd
     cp host-browser-service.js \service-wd\
