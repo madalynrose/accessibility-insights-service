@@ -97,7 +97,7 @@ describe(PageScanProcessor, () => {
                     browserWSEndpoint: `ws://host.docker.internal:8585`,
                 }),
             )
-            .returns(_ => Promise.reject())
+            .returns((_) => Promise.reject())
             .verifiable();
         pageMock.setup((p) => p.create()).verifiable();
         pageMock.setup((p) => p.navigateToUrl(url)).verifiable();

@@ -26,7 +26,7 @@ export class PageScanProcessor {
 
             axeScanResults = {
                 browserLaunchMechanism: pageOpenMechanism,
-                ...await this.axeScanner.scan(this.page),
+                ...(await this.axeScanner.scan(this.page)),
             };
             this.logger.logInfo('The axe scanner completed a page scan.');
 
