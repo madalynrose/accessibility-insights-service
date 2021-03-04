@@ -4,18 +4,20 @@
 const Service = require('node-windows').Service;
 
 const svc = new Service({
-    name:'AccessibilityBrowserProvider',
+    name: 'AccessibilityBrowserProvider',
     description: 'Provides puppeteer instances on host',
     script: '\\service-wd\\host-browser-service.js',
-    env: [{
-        name: 'APPINSIGHTS_INSTRUMENTATIONKEY',
-        value: process.env.APPINSIGHTS_INSTRUMENTATIONKEY,
-    }],
+    env: [
+        {
+            name: 'APPINSIGHTS_INSTRUMENTATIONKEY',
+            value: process.env.APPINSIGHTS_INSTRUMENTATIONKEY,
+        },
+    ],
 });
 
 console.log('Created service object');
 
-svc.on('install', function() {
+svc.on('install', function () {
     console.log('Windows browser provider service installed, waiting 10 seconds to start');
     setTimeout(() => {
         console.log('starting Windows browser provider service');
