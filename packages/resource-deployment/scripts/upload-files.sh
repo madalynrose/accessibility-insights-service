@@ -68,6 +68,7 @@ function uploadFiles() {
         "uploadFolderContents \"batch-pool-startup-script\" \"$dropFolder/resource-deployment/dist/scripts/pool-startup\" \"$storageAccountName\""
         "uploadFile \"runtime-configuration\" \"$dropFolder/resource-deployment/dist/runtime-config/runtime-config.$environment.json\" \"$storageAccountName\" \"runtime-config.json\""
         "uploadFile \"batch-pool-startup-script\" \"$dropFolder/host-browser-service/dist/host-browser-service.js\" \"$storageAccountName\" \"host-browser-service.js\""
+        "uploadFile \"batch-pool-startup-script\" \"$dropFolder/host-browser-service/dist/windows-service.js\" \"$storageAccountName\" \"windows-service.js\""
     )
 
     runCommandsWithoutSecretsInParallel uploadProcesses
