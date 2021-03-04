@@ -89,6 +89,11 @@ export interface BrowserScanFailedMeasurements extends BaseTelemetryMeasurements
     failedBrowserScans: number;
 }
 
+export interface BrowserLaunchedMeasurements extends BaseTelemetryMeasurements {
+    localLaunches: number;
+    remoteLaunches: number;
+}
+
 export type TelemetryMeasurements = {
     HealthCheck: null;
     FunctionalTest: null;
@@ -109,4 +114,5 @@ export type TelemetryMeasurements = {
     SendNotificationTaskCompleted: SendNotificationTaskCompletedMeasurements;
     SendNotificationTaskFailed: SendNotificationTaskFailedMeasurements;
     BrowserScanFailed: BrowserScanFailedMeasurements;
+    BrowserLaunched: BrowserLaunchedMeasurements;
 };

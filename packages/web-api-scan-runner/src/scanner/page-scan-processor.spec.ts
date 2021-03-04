@@ -19,7 +19,8 @@ describe(PageScanProcessor, () => {
     let deepScannerMock: IMock<DeepScanner>;
 
     const url = 'url';
-    const axeScanResults = { scannedUrl: url } as AxeScanResults;
+    const axeScanResultsOrig = { scannedUrl: url } as AxeScanResults;
+    const expectedAxeScanResults: AxeScanResults = { ...axeScanResultsOrig, browserLaunchMechanism: 'remote' };
     const pageScanResult = { id: 'id' } as OnDemandPageScanResult;
 
     let testSubject: PageScanProcessor;
@@ -51,13 +52,13 @@ describe(PageScanProcessor, () => {
         setupClosePage();
         axeScannerMock
             .setup((s) => s.scan(pageMock.object))
-            .returns(() => Promise.resolve(axeScanResults))
+            .returns(() => Promise.resolve(axeScanResultsOrig))
             .verifiable();
         deepScannerMock.setup((d) => d.runDeepScan(It.isAny(), It.isAny(), It.isAny())).verifiable(Times.never());
 
         const results = await testSubject.scan(scanMetadata, pageScanResult);
 
-        expect(results).toEqual(axeScanResults);
+        expect(results).toEqual(expectedAxeScanResults);
     });
 
     it('scans successfully when deep scan is enabled', async () => {
@@ -71,7 +72,7 @@ describe(PageScanProcessor, () => {
         setupClosePage();
         axeScannerMock
             .setup((s) => s.scan(pageMock.object))
-            .returns(() => Promise.resolve(axeScanResults))
+            .returns(() => Promise.resolve(axeScanResultsOrig))
             .verifiable();
         pageMock
             .setup((p) => p.isOpen())
@@ -81,7 +82,35 @@ describe(PageScanProcessor, () => {
 
         const results = await testSubject.scan(scanMetadata, pageScanResult);
 
-        expect(results).toEqual(axeScanResults);
+        expect(results).toEqual(expectedAxeScanResults);
+    });
+
+    it('falls back to local browser launch if remote connection fails', async () => {
+        const scanMetadata = {
+            url: url,
+            id: 'id',
+        };
+
+        pageMock
+            .setup((p) =>
+                p.create({
+                    browserWSEndpoint: `ws://host.docker.internal:8585`,
+                }),
+            )
+            .returns(_ => Promise.reject())
+            .verifiable();
+        pageMock.setup((p) => p.create()).verifiable();
+        pageMock.setup((p) => p.navigateToUrl(url)).verifiable();
+        setupClosePage();
+        axeScannerMock
+            .setup((s) => s.scan(pageMock.object))
+            .returns(() => Promise.resolve(axeScanResultsOrig))
+            .verifiable();
+        deepScannerMock.setup((d) => d.runDeepScan(It.isAny(), It.isAny(), It.isAny())).verifiable(Times.never());
+
+        const results = await testSubject.scan(scanMetadata, pageScanResult);
+        expectedAxeScanResults.browserLaunchMechanism = 'local';
+        expect(results).toEqual(expectedAxeScanResults);
     });
 
     it('returns error thrown by axe scanner', async () => {
@@ -111,7 +140,7 @@ describe(PageScanProcessor, () => {
         setupClosePage();
         axeScannerMock
             .setup((s) => s.scan(pageMock.object))
-            .returns(() => Promise.resolve(axeScanResults))
+            .returns(() => Promise.resolve(axeScanResultsOrig))
             .verifiable();
         pageMock
             .setup((p) => p.isOpen())

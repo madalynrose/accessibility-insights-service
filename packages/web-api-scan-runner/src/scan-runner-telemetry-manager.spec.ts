@@ -65,6 +65,12 @@ describe(ScanRunnerTelemetryManager, () => {
         testSubject.trackBrowserScanFailed();
     });
 
+    it('trackBrowserLaunched', () => {
+        setupTrackEvent('BrowserLaunched', { remoteLaunches: 1, localLaunches: 0 });
+
+        testSubject.trackBrowserLaunched('remote');
+    });
+
     it('trackScanTaskFailed', () => {
         setupTrackEvent('ScanRequestFailed', { failedScanRequests: 1 });
         setupTrackEvent('ScanTaskFailed', { failedScanTasks: 1 });

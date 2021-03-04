@@ -53,6 +53,7 @@ export class Runner {
         this.telemetryManager.trackScanStarted(scanMetadata.id);
         try {
             const axeScanResults = await this.pageScanProcessor.scan(scanMetadata, pageScanResult);
+            this.telemetryManager.trackBrowserLaunched(axeScanResults.browserLaunchMechanism);
             await this.processScanResult(axeScanResults, pageScanResult);
         } catch (error) {
             const errorMessage = System.serializeError(error);

@@ -67,6 +67,7 @@ describe(Runner, () => {
             scannedUrl: 'scannedUrl',
             pageTitle: 'pageTitle',
             pageResponseCode: 200,
+            browserLaunchMechanism: 'remote',
         } as AxeScanResults;
         reports = [{}] as OnDemandPageScanReport[];
 
@@ -290,6 +291,8 @@ function setupScanRunnerTelemetryManager(taskSucceeded: boolean = true, scanSucc
     scanRunnerTelemetryManagerMock.setup((o) => o.trackScanCompleted()).verifiable();
     if (!taskSucceeded) {
         scanRunnerTelemetryManagerMock.setup((o) => o.trackScanTaskFailed()).verifiable();
+    } else {
+        scanRunnerTelemetryManagerMock.setup((o) => o.trackBrowserLaunched(axeScanResults.browserLaunchMechanism)).verifiable();
     }
 
     if (!scanSucceeded) {

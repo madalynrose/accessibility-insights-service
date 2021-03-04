@@ -20,4 +20,5 @@ export declare type LoggerEvent =
     | 'SendNotificationTaskStarted'
     | 'SendNotificationTaskCompleted'
     | 'SendNotificationTaskFailed'
+    | 'BrowserLaunched'
     | 'BrowserScanFailed';

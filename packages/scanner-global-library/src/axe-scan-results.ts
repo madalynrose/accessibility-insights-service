@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 import { AxeResults } from 'axe-core';
 import { BrowserError } from './browser-error';
+import { BrowserLaunchMechanism } from './browser-launch';
 
 export interface AxeScanResults {
     results?: AxeResults;
@@ -13,4 +14,5 @@ export interface AxeScanResults {
     browserSpec?: string;
     userAgent?: string;
     browserResolution?: string;
+    browserLaunchMechanism?: BrowserLaunchMechanism;
 }

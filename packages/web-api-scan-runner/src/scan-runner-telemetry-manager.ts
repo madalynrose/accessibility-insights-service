@@ -5,6 +5,7 @@ import { GuidGenerator } from 'common';
 import { inject, injectable } from 'inversify';
 import { isNil } from 'lodash';
 import { GlobalLogger, ScanTaskCompletedMeasurements } from 'logger';
+import { BrowserLaunchMechanism } from 'scanner-global-library';
 
 @injectable()
 export class ScanRunnerTelemetryManager {
@@ -29,6 +30,13 @@ export class ScanRunnerTelemetryManager {
 
     public trackBrowserScanFailed(): void {
         this.logger.trackEvent('BrowserScanFailed', undefined, { failedBrowserScans: 1 });
+    }
+
+    public trackBrowserLaunched(mechanism: BrowserLaunchMechanism): void {
+        this.logger.trackEvent('BrowserLaunched', undefined, {
+            localLaunches: mechanism === 'local' ? 1 : 0,
+            remoteLaunches: mechanism === 'remote' ? 1 : 0,
+        });
     }
 
     public trackScanTaskFailed(): void {

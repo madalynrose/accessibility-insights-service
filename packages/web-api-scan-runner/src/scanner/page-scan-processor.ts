@@ -4,7 +4,7 @@
 import { System } from 'common';
 import { inject, injectable } from 'inversify';
 import { GlobalLogger } from 'logger';
-import { AxeScanResults, Page } from 'scanner-global-library';
+import { AxeScanResults, BrowserLaunchMechanism, Page } from 'scanner-global-library';
 import { OnDemandPageScanResult } from 'storage-documents';
 import { AxeScanner } from '../scanner/axe-scanner';
 import { ScanMetadata } from '../types/scan-metadata';
@@ -22,9 +22,12 @@ export class PageScanProcessor {
     public async scan(scanMetadata: ScanMetadata, pageScanResult: OnDemandPageScanResult): Promise<AxeScanResults> {
         let axeScanResults: AxeScanResults;
         try {
-            await this.openPage(scanMetadata.url);
+            const pageOpenMechanism = await this.openPage(scanMetadata.url);
 
-            axeScanResults = await this.axeScanner.scan(this.page);
+            axeScanResults = {
+                browserLaunchMechanism: pageOpenMechanism,
+                ...await this.axeScanner.scan(this.page),
+            };
             this.logger.logInfo('The axe scanner completed a page scan.');
 
             if (scanMetadata.deepScan) {
@@ -42,7 +45,8 @@ export class PageScanProcessor {
         return axeScanResults;
     }
 
-    private async openPage(url: string): Promise<void> {
+    private async openPage(url: string): Promise<BrowserLaunchMechanism> {
+        let mechanism: BrowserLaunchMechanism = 'remote';
         try {
             await this.page.create({
                 browserWSEndpoint: `ws://host.docker.internal:8585`,
@@ -50,8 +54,11 @@ export class PageScanProcessor {
         } catch (e) {
             this.logger.logError('Could not connect to remote browser, falling back to local launch', { error: System.serializeError(e) });
             await this.page.create();
+            mechanism = 'local';
         }
         await this.page.navigateToUrl(url);
+
+        return mechanism;
     }
 
     private async closePage(): Promise<void> {
