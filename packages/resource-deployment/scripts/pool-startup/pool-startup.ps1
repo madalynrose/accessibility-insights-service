@@ -34,16 +34,29 @@ function installBrowserHostServiceDependencies() {
         Expand-Archive node.zip -DestinationPath C:\
         Rename-Item -Path "C:\node-v$global:NODE_VERSION-win-x64" -NewName $nodeInstallDir
     }
+}
 
-    $current = pwd
-    rm -r -Force \service-wd
-    mkdir \service-wd
+function installWindowsService() {
+    Write-Output "Installing host-browser-provider service as a windows service"
+
+    Write-Output "Trying to delete service if already installed"
+    sc.exe delete accessibilitybrowserprovider.exe
+
+    $serviceDir = "\service-wd";
+    if (Test-Path -Path $serviceDir) {
+        Write-Output "working directory $serviceDir already exists"
+    }
+    else {
+        mkdir \service-wd
+    }
     cp host-browser-service.js \service-wd\
     cp windows-service.js \service-wd\
+    $current = pwd
     cd \service-wd
     npm install puppeteer@5.5.0 #TODO: create and upload a package.json to get the right version automatically
     npm install -g node-windows
     npm link node-windows
+    Write-Output "running windows-service.js script:"
     node windows-service.js
     cd $current
 }
@@ -58,6 +71,7 @@ if ([string]::IsNullOrEmpty($global:keyvault)) {
 
 installBootstrapPackages
 installBrowserHostServiceDependencies
+installWindowsService
 
 ./pull-image-from-container-registry.ps1 -k $global:keyvault
 

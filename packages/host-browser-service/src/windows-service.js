@@ -15,18 +15,35 @@ const svc = new Service({
     ],
 });
 
-console.log('Created service object');
+async function wait(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
-svc.on('install', function () {
-    console.log('Windows browser provider service installed, waiting 10 seconds to start');
-    setTimeout(() => {
-        console.log('starting Windows browser provider service');
-        svc.start();
-    }, 10000);
+svc.on('install', async () => {
+    console.log('[windows-service.js]: Windows browser provider service installed, waiting 10 seconds to start');
+    await wait(10000);
+    console.log('[windows-service.js]: Starting Windows browser provider service');
+    svc.start();
 });
 
-svc.install();
+console.log('[windows-service.js]: Created browser provider node-windows object.');
+if (svc.exists) {
+    svc.once('uninstall', async () => {
+        console.log('[windows-service.js]: Service has been uninstalled. Reinstalling in 10 seconds.');
+        await wait(10000);
+        console.log('[windows-service.js]: Installing windows browser provider service');
+        svc.install();
+    });
+
+    console.log('[windows-service.js]: Service already exists. Stopping, then uninstalling.');
+    svc.once('stop', svc.uninstall);
+    svc.once('alreadystopped', svc.uninstall);
+    svc.stop();
+} else {
+    console.log('[windows-service.js]: Service does not exist. Installing.');
+    svc.install();
+}
 
 svc.on('start', () => {
-    console.log('Windows browser provider service started');
+    console.log('[windows-service.js]: Windows browser provider service started');
 });
