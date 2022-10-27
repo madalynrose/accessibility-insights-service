@@ -27,7 +27,7 @@
         "@rollup/plugin-node-resolve": "^15.0.0",
         "@types/encoding-down": "^5.0.0",
         "@types/jest": "^27.4.1",
-        "@types/leveldown": "^4.0.2",
+        "@types/leveldown": "^4.0.3",
         "@types/levelup": "^5.1.1",
         "@types/node": "^16.11.7",
         "@types/puppeteer": "^5.4.6",
