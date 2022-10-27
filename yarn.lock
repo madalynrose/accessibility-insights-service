@@ -3208,13 +3208,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/leveldown@npm:^4.0.2":
-  version: 4.0.2
-  resolution: "@types/leveldown@npm:4.0.2"
+"@types/leveldown@npm:^4.0.3":
+  version: 4.0.3
+  resolution: "@types/leveldown@npm:4.0.3"
   dependencies:
     "@types/abstract-leveldown": "*"
     "@types/node": "*"
-  checksum: a730ede26634b2b6aa141339f30729be6bf9de0e0de3ff9b0b75636ed6d65fe40d90b98c1288348d3a2317d17b7bc0419825b405cd7b2e202a97a27906500373
+  checksum: 0a476bd8d3c71266fdb323875d3312bf7828d6ab9f1bf9882a0ff93d04044660e45cd211ca8ec34c5665eaa773f98fe9fee14235792835bd06cb68192fe44669
   languageName: node
   linkType: hard
 
@@ -3941,7 +3941,7 @@ __metadata:
     "@rollup/plugin-node-resolve": ^15.0.0
     "@types/encoding-down": ^5.0.0
     "@types/jest": ^27.4.1
-    "@types/leveldown": ^4.0.2
+    "@types/leveldown": ^4.0.3
     "@types/levelup": ^5.1.1
     "@types/node": ^16.11.7
     "@types/puppeteer": ^5.4.6
