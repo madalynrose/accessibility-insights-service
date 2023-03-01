@@ -3316,7 +3316,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/puppeteer@npm:*, @types/puppeteer@npm:^5.4.6":
+"@types/puppeteer@npm:^5.4.6":
   version: 5.4.6
   resolution: "@types/puppeteer@npm:5.4.6"
   dependencies:
@@ -4041,7 +4041,7 @@ __metadata:
     npm-run-all: ^4.1.5
     playwright: ^1.22.2
     puppeteer: ^13.7.0
-    puppeteer-extra: ^3.2.3
+    puppeteer-extra: ^3.3.6
     puppeteer-extra-plugin: ^3.2.0
     puppeteer-extra-plugin-stealth: ^2.9.0
     raw-body: ^2.5.1
@@ -11953,7 +11953,7 @@ __metadata:
     p-limit: ^3.1.0
     privacy-scan-core: "workspace:*"
     puppeteer: ^13.7.0
-    puppeteer-extra: ^3.2.3
+    puppeteer-extra: ^3.3.6
     puppeteer-extra-plugin: ^3.2.0
     puppeteer-extra-plugin-stealth: ^2.9.0
     reflect-metadata: ^0.1.13
@@ -12126,17 +12126,25 @@ __metadata:
   languageName: node
   linkType: hard
 
-"puppeteer-extra@npm:^3.2.3":
-  version: 3.2.3
-  resolution: "puppeteer-extra@npm:3.2.3"
+"puppeteer-extra@npm:^3.3.6":
+  version: 3.3.6
+  resolution: "puppeteer-extra@npm:3.3.6"
   dependencies:
     "@types/debug": ^4.1.0
-    "@types/puppeteer": "*"
     debug: ^4.1.1
     deepmerge: ^4.2.2
   peerDependencies:
+    "@types/puppeteer": "*"
     puppeteer: "*"
-  checksum: a49f4b212fb041f6511fbae33be0e235700ee7029aa25c5cde3f37c07af84fd2a8db7a813b86dda29a8ec693d5c283bcc2b4191e21bd08f9c568c8be3b8b4309
+    puppeteer-core: "*"
+  peerDependenciesMeta:
+    "@types/puppeteer":
+      optional: true
+    puppeteer:
+      optional: true
+    puppeteer-core:
+      optional: true
+  checksum: d3097a16957dbc7c23e960429020b4c32b3d56d54e80103781ce8cc17b3eebda4554caad454744ff212ff69c19653cc0d4978d6f35381ffdfd1db1cedd0c61a6
   languageName: node
   linkType: hard
 
@@ -12618,7 +12626,7 @@ __metadata:
     npm-run-all: ^4.1.5
     p-limit: ^3.1.0
     puppeteer: ^13.7.0
-    puppeteer-extra: ^3.2.3
+    puppeteer-extra: ^3.3.6
     puppeteer-extra-plugin: ^3.2.0
     puppeteer-extra-plugin-stealth: ^2.9.0
     reflect-metadata: ^0.1.13
@@ -12964,7 +12972,7 @@ __metadata:
     logger: "workspace:*"
     npm-run-all: ^4.1.5
     puppeteer: ^13.7.0
-    puppeteer-extra: ^3.2.3
+    puppeteer-extra: ^3.3.6
     puppeteer-extra-plugin: ^3.2.0
     puppeteer-extra-plugin-stealth: ^2.9.0
     reflect-metadata: ^0.1.13
@@ -14900,7 +14908,7 @@ __metadata:
     npm-run-all: ^4.1.5
     p-limit: ^3.1.0
     puppeteer: ^13.7.0
-    puppeteer-extra: ^3.2.3
+    puppeteer-extra: ^3.3.6
     puppeteer-extra-plugin: ^3.2.0
     puppeteer-extra-plugin-stealth: ^2.9.0
     reflect-metadata: ^0.1.13
