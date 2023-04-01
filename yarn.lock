@@ -4019,7 +4019,7 @@ __metadata:
     convict: ^6.2.3
     copy-webpack-plugin: ^11.0.0
     dotenv: ^16.0.1
-    dts-bundle-generator: ^6.12.0
+    dts-bundle-generator: ^8.0.0
     encoding-down: ^7.1.0
     exponential-backoff: ^3.1.0
     filenamify: ^4.3.0
@@ -6386,15 +6386,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dts-bundle-generator@npm:^6.12.0":
-  version: 6.12.0
-  resolution: "dts-bundle-generator@npm:6.12.0"
+"dts-bundle-generator@npm:^8.0.0":
+  version: 8.0.0
+  resolution: "dts-bundle-generator@npm:8.0.0"
   dependencies:
-    typescript: ">=3.0.1"
-    yargs: ^17.2.1
+    typescript: ">=5.0.2"
+    yargs: ^17.6.0
   bin:
     dts-bundle-generator: dist/bin/dts-bundle-generator.js
-  checksum: 65dfac5dfa7eebf1cea505a978279f2b7f59d695186d3e9bec7c2eb37e8c386237c9381e86ccd3b7fa114b3fe36bfc9c202109cc984fb70eb0fb141726175131
+  checksum: fd806f275be633bc59645c2ed209759c896e1749b97287bc23b43cad3c2b4c5dcd8fb7594b6f7d86d93b1ea17eb3fa091fe146b2b64ca8532327b05d968ff6b9
   languageName: node
   linkType: hard
 
@@ -14419,7 +14419,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:>=3.0.1, typescript@npm:^4.7.4":
+"typescript@npm:>=5.0.2":
+  version: 5.0.3
+  resolution: "typescript@npm:5.0.3"
+  bin:
+    tsc: bin/tsc
+    tsserver: bin/tsserver
+  checksum: 3cce0576d218cb4277ff8b6adfef1a706e9114a98b4261a38ad658a7642f1b274a8396394f6cbff8c0ba852996d7ed2e233e9b8431d5d55ac7c2f6fea645af02
+  languageName: node
+  linkType: hard
+
+"typescript@npm:^4.7.4":
   version: 4.7.4
   resolution: "typescript@npm:4.7.4"
   bin:
@@ -14429,7 +14439,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@>=3.0.1#~builtin<compat/typescript>, typescript@patch:typescript@^4.7.4#~builtin<compat/typescript>":
+"typescript@patch:typescript@>=5.0.2#~builtin<compat/typescript>":
+  version: 5.0.3
+  resolution: "typescript@patch:typescript@npm%3A5.0.3#~builtin<compat/typescript>::version=5.0.3&hash=f456af"
+  bin:
+    tsc: bin/tsc
+    tsserver: bin/tsserver
+  checksum: 9ec0a8eed38d46cc2c8794555b7674e413604c56c159f71b8ff21ce7f17334a44127a68724cb2ef8221ff3b19369f8f05654e8a5266621d7d962aeed889bd630
+  languageName: node
+  linkType: hard
+
+"typescript@patch:typescript@^4.7.4#~builtin<compat/typescript>":
   version: 4.7.4
   resolution: "typescript@patch:typescript@npm%3A4.7.4#~builtin<compat/typescript>::version=4.7.4&hash=f456af"
   bin:
@@ -15573,7 +15593,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"yargs@npm:^17.0.0, yargs@npm:^17.2.1":
+"yargs@npm:^17.0.0":
   version: 17.5.1
   resolution: "yargs@npm:17.5.1"
   dependencies:
