@@ -4039,7 +4039,7 @@ __metadata:
     normalize-path: ^3.0.0
     normalize-url: 6.1.0
     npm-run-all: ^4.1.5
-    playwright: ^1.22.2
+    playwright: ^1.32.1
     puppeteer: ^13.7.0
     puppeteer-extra: ^3.2.3
     puppeteer-extra-plugin: ^3.2.0
@@ -11721,23 +11721,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"playwright-core@npm:1.22.2":
-  version: 1.22.2
-  resolution: "playwright-core@npm:1.22.2"
+"playwright-core@npm:1.32.1":
+  version: 1.32.1
+  resolution: "playwright-core@npm:1.32.1"
   bin:
     playwright: cli.js
-  checksum: 7381c35359b4338282f73dc902c1c1311e8e7cbf852f445dd6b430ebcb7eafc842b8e512d238fdc0b70d1da2b14046f297b19dac027c6a0a62ff217e70f6a07c
+  checksum: 796185e605df3c970885845c1fbf2de53db5d089d37946850483797c91b81ab9dc87c3440695e96a8c92613324ef3deaea698afaf2c379548a23f8ce074931de
   languageName: node
   linkType: hard
 
-"playwright@npm:^1.22.2":
-  version: 1.22.2
-  resolution: "playwright@npm:1.22.2"
+"playwright@npm:^1.32.1":
+  version: 1.32.1
+  resolution: "playwright@npm:1.32.1"
   dependencies:
-    playwright-core: 1.22.2
+    playwright-core: 1.32.1
   bin:
     playwright: cli.js
-  checksum: e9e9c4a959d27b6bea3144a0cb19b15124226fb0017e65978fe781fc79129793028ec68dbe9252674120b9a0079bd0e4d17bd2e1258e66032d5ec5427f35cb6f
+  checksum: bb2cef8812abf60cf07bbf6edb4ac480ccbf0b129e001fd4f2d499c8888918bc87dcc0f346b5954e6b67cd67528c8263593b091f3c83609a91c8a276196c8951
   languageName: node
   linkType: hard
 
